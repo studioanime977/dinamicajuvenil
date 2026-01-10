@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Juego Bíblico Jóvenes – Multiequipo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-indigo-100 to-purple-200 min-h-screen flex items-center justify-center font-sans relative">
+
+<div class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-2xl mx-4">
+  <h1 class="text-3xl font-extrabold text-center mb-2 text-indigo-800">🔥 Juego Bíblico: La Honra</h1>
+  <p class="text-center text-gray-600 mb-6">Cada grupo con su celular • Anti‑trampa activo</p>
+
+  <!-- Registro de Equipo -->
+  <div id="join-section" class="mb-6">
+    <input id="team-name" placeholder="Nombre del Equipo" class="border-2 border-gray-300 p-3 rounded-lg w-full mb-3 focus:ring-2 focus:ring-indigo-500 transition" />
+    <button id="join-button" class="bg-indigo-600 text-white px-6 py-3 rounded-lg w-full font-bold hover:bg-indigo-700 transition-transform transform hover:scale-105">Entrar al juego</button>
+  </div>
+
+  <!-- Contenedor del Juego (inicialmente oculto) -->
+  <div id="game-section" class="hidden">
+    <!-- Pregunta Actual -->
+    <div class="mb-6">
+      <h2 class="text-xl font-bold text-gray-800 mb-2">📖 Pregunta</h2>
+      <p id="question" class="bg-gray-100 p-4 rounded-lg text-lg min-h-[80px]"></p>
+    </div>
+
+    <!-- Opciones de Respuesta (se generan dinámicamente) -->
+    <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      <!-- Los botones de opción aparecerán aquí -->
+    </div>
+  </div>
+
+  <!-- Marcador de Puntos -->
+  <div>
+    <h2 class="text-xl font-bold text-gray-800 mb-3">🏆 Marcador en Vivo</h2>
+    <div id="leaderboard" class="space-y-2">
+      <p class="text-gray-500">Esperando jugadores...</p>
+    </div>
+  </div>
+
+  <!-- Estado del juego/equipo -->
+  <p id="status" class="text-center text-sm text-gray-500 mt-6"></p>
+
+</div>
+
+<!-- Link al Panel de Administración -->
+<div class="absolute bottom-4 right-4">
+  <a href="leader.html" target="_blank" class="bg-gray-700 text-white text-xs font-bold py-2 px-4 rounded-full hover:bg-gray-800 transition">
+    Panel del Líder
+  </a>
+</div>
+
+<!-- Scripts de Firebase y Lógica del Juego -->
+<script type="module" src="main.js"></script>
+
+</body>
+</html>

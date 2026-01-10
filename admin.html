@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel del Líder</title>
+</head>
+<body>
+  <h2>👑 Panel del Líder</h2>
+
+  <input id="clave" placeholder="Clave de admin">
+  <button onclick="entrar()">Entrar</button>
+
+  <div id="panel" style="display:none;">
+    <hr>
+    <h3>Control de Preguntas</h3>
+
+    <button onclick="abrir()">Abrir Pregunta</button>
+    <button onclick="cerrar()">Cerrar Pregunta</button>
+
+    <p>Pregunta actual: <span id="pregunta">0</span></p>
+
+    <button onclick="siguiente()">➡️ Siguiente Pregunta</button>
+
+    <hr>
+    <h3>Puntos de los Equipos</h3>
+    <ul id="lista"></ul>
+  </div>
+
+  <!-- FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc, collection, onSnapshot } 
+    from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC8xL6OM_ff7LqFJj_P87d9wVR-BT8OJsE",
+      authDomain: "dinamica-en-tiempo-real.firebaseapp.com",
+      projectId: "dinamica-en-tiempo-real",
+      storageBucket: "dinamica-en-tiempo-real.firebasestorage.app",
+      messagingSenderId: "1096669474654",
+      appId: "1:1096669474654:web:0348238823f2a0cbdea9cf"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const adminRef = doc(db, "config", "admin");
+
+    window.entrar = async () => {
+      const claveIngresada = document.getElementById("clave").value;
+      const snap = await getDoc(adminRef);
+
+      if (snap.exists() && snap.data().clave === claveIngresada) {
+        document.getElementById("panel").style.display = "block";
+        escuchar();
+      } else {
+        alert("Clave incorrecta");
+      }
+    };
+
+    window.abrir = async () => {
+      await updateDoc(adminRef, { estado: "abierta" });
+    };
+
+    window.cerrar = async () => {
+      await updateDoc(adminRef, { estado: "cerrada" });
+    };
+
+    window.siguiente = async () => {
+      const snap = await getDoc(adminRef);
+      await updateDoc(adminRef, {
+        preguntaActual: snap.data().preguntaActual + 1
+      });
+    };
+
+    function escuchar() {
+      onSnapshot(adminRef, (docu) => {
+        document.getElementById("pregunta").innerText =
+          docu.data().preguntaActual;
+      });
+
+      onSnapshot(collection(db, "jugadores"), (snap) => {
+        const lista = document.getElementById("lista");
+        lista.innerHTML = "";
+        snap.forEach(d => {
+          const li = document.createElement("li");
+          li.textContent = `${d.data().nombre}: ${d.data().puntos} pts`;
+          lista.appendChild(li);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

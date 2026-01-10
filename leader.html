@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control del Líder – Juego Bíblico</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-800 min-h-screen flex items-center justify-center font-sans">
+
+<div class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md mx-4">
+  <h1 class="text-3xl font-extrabold text-center mb-4 text-gray-900">Panel del Líder</h1>
+  <p class="text-center text-gray-600 mb-8">Usa estos botones para controlar el juego para todos los jugadores.</p>
+
+  <div class="space-y-4">
+    <button id="next-question-button" class="bg-blue-600 text-white px-6 py-4 rounded-lg w-full font-bold text-lg hover:bg-blue-700 transition-transform transform hover:scale-105">Siguiente Pregunta ➔</button>
+    <button id="reset-game-button" class="bg-red-600 text-white px-6 py-4 rounded-lg w-full font-bold text-lg hover:bg-red-700 transition-transform transform hover:scale-105">Reiniciar Juego ↺</button>
+  </div>
+
+  <!-- Estado y feedback para el líder -->
+  <div class="mt-8">
+      <h2 class="text-xl font-bold text-gray-800 mb-3">Estado del Juego</h2>
+      <div class="bg-gray-100 p-4 rounded-lg">
+          <p>Pregunta Actual: <strong id="current-question-status">No iniciada</strong></p>
+          <p>Equipos Conectados: <strong id="team-count">0</strong></p>
+      </div>
+  </div>
+
+</div>
+
+<!-- Scripts de Firebase y Lógica del Líder -->
+<script type="module" src="leader.js"></script>
+
+</body>
+</html>
