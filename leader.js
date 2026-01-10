@@ -45,7 +45,14 @@ const TOTAL_QUESTIONS = 4;
 // 1. Botón para pasar a la siguiente pregunta
 nextQuestionButton.addEventListener('click', async () => {
   const gameRef = doc(db, `games/${GAME_ID}`);
-  const gameDoc = await getDoc(gameRef);
+  let gameDoc;
+  try {
+    gameDoc = await getDoc(gameRef);
+  } catch (err) {
+    console.error(err);
+    questionStatusDisplay.textContent = 'Error leyendo el estado del juego (posible error de permisos).';
+    return;
+  }
 
   let nextIndex = 0;
   if (gameDoc.exists() && typeof gameDoc.data().currentQuestionIndex !== 'undefined') {
@@ -58,7 +65,12 @@ nextQuestionButton.addEventListener('click', async () => {
 
   // Aquí podrías añadir un límite para que no se pase del total de preguntas.
   // Por ahora, simplemente actualiza el índice.
-  await setDoc(gameRef, { currentQuestionIndex: nextIndex }, { merge: true });
+  try {
+    await setDoc(gameRef, { currentQuestionIndex: nextIndex }, { merge: true });
+  } catch (err) {
+    console.error(err);
+    questionStatusDisplay.textContent = 'No se pudo avanzar la pregunta (posible error de permisos en Firestore).';
+  }
 });
 
 // 2. Botón para reiniciar el juego
@@ -69,7 +81,12 @@ resetGameButton.addEventListener('click', async () => {
   
   const gameRef = doc(db, `games/${GAME_ID}`);
   // Esto regresa el juego al estado inicial donde los jugadores esperan al líder.
-  await setDoc(gameRef, { currentQuestionIndex: -1 }); 
+  try {
+    await setDoc(gameRef, { currentQuestionIndex: -1 });
+  } catch (err) {
+    console.error(err);
+    questionStatusDisplay.textContent = 'No se pudo reiniciar (posible error de permisos en Firestore).';
+  }
 });
 
 
@@ -84,9 +101,21 @@ onSnapshot(doc(db, `games/${GAME_ID}`), (docSnap) => {
             questionStatusDisplay.textContent = `Pregunta #${index + 1}`;
         }
     }
+}, (err) => {
+    console.error(err);
+    if (err?.code === 'permission-denied') {
+        questionStatusDisplay.textContent = 'Firestore bloqueado por permisos. Ajusta las reglas para leer/escribir el juego.';
+    } else {
+        questionStatusDisplay.textContent = 'Error escuchando el estado del juego.';
+    }
 });
 
 // 4. Escuchar la cantidad de equipos conectados
 onSnapshot(collection(db, `games/${GAME_ID}/teams`), (snapshot) => {
     teamCountDisplay.textContent = snapshot.size;
+}, (err) => {
+    console.error(err);
+    if (err?.code === 'permission-denied') {
+        teamCountDisplay.textContent = '—';
+    }
 });

@@ -100,7 +100,13 @@ joinButton.addEventListener('click', async () => {
   currentTeamName = teamName;
   const teamRef = doc(db, `games/${GAME_ID}/teams`, currentTeamName);
 
-  await setDoc(teamRef, { name: currentTeamName, points: 0, penalties: 0 });
+  try {
+    await setDoc(teamRef, { name: currentTeamName, points: 0, penalties: 0 });
+  } catch (err) {
+    console.error(err);
+    statusDisplay.innerText = 'Error de permisos en Firestore. Revisa las reglas de Firestore (Missing or insufficient permissions).';
+    return;
+  }
   
   joinSection.classList.add('hidden');
   gameSection.classList.remove('hidden');
@@ -129,6 +135,13 @@ onSnapshot(gameRef, (docSnap) => {
     // El líder aún no ha creado el documento del juego
     questionDisplay.innerText = "El juego aún no ha comenzado.";
   }
+}, (err) => {
+  console.error(err);
+  if (err?.code === 'permission-denied') {
+    statusDisplay.innerText = 'Firestore bloqueado por permisos. Ajusta las reglas para permitir lectura del juego.';
+  } else {
+    statusDisplay.innerText = 'Error escuchando el estado del juego.';
+  }
 });
 
 // 3. Mostrar la pregunta y las opciones
@@ -155,7 +168,14 @@ async function handleAnswer(selectedIndex, correctIndex) {
   const pointsChange = isCorrect ? 2 : -1;
   const teamRef = doc(db, `games/${GAME_ID}/teams`, currentTeamName);
 
-  await updateDoc(teamRef, { points: increment(pointsChange) });
+  try {
+    await updateDoc(teamRef, { points: increment(pointsChange) });
+  } catch (err) {
+    console.error(err);
+    answeredCurrentQuestion = false;
+    statusDisplay.innerText = 'No se pudo guardar tu respuesta (posible error de permisos en Firestore).';
+    return;
+  }
 
   // Feedback visual instantáneo
   Array.from(optionsContainer.children).forEach((btn, idx) => {
@@ -185,15 +205,26 @@ onSnapshot(teamsQuery, (snapshot) => {
     teamElement.innerHTML = `<span class="font-semibold text-indigo-700">${team.name}</span><span class="font-bold text-xl">${team.points} pts</span>`;
     leaderboard.appendChild(teamElement);
   });
+}, (err) => {
+  console.error(err);
+  if (err?.code === 'permission-denied') {
+    leaderboard.innerHTML = '<p class="text-red-600">Sin permisos para leer el marcador (Firestore).</p>';
+  } else {
+    leaderboard.innerHTML = '<p class="text-red-600">Error cargando el marcador.</p>';
+  }
 });
 
 // 6. Penalización por anti-trampa
 document.addEventListener('visibilitychange', async () => {
   if (document.hidden && currentTeamName) {
     const teamRef = doc(db, `games/${GAME_ID}/teams`, currentTeamName);
-    await updateDoc(teamRef, {
-      points: increment(-3), // Penalización más severa
-      penalties: increment(1)
-    });
+    try {
+      await updateDoc(teamRef, {
+        points: increment(-3), // Penalización más severa
+        penalties: increment(1)
+      });
+    } catch (err) {
+      console.error(err);
+    }
   }
 });
