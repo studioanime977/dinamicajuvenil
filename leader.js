@@ -36,6 +36,7 @@ const questionStatusDisplay = document.getElementById('current-question-status')
 const teamCountDisplay = document.getElementById('team-count');
 
 const GAME_ID = "main-game";
+const TOTAL_QUESTIONS = 4;
 
 // -----------------------------------------------------------------------------------------------
 // 🕹️ LÓGICA DEL PANEL DE LÍDER
@@ -50,6 +51,10 @@ nextQuestionButton.addEventListener('click', async () => {
   if (gameDoc.exists() && typeof gameDoc.data().currentQuestionIndex !== 'undefined') {
     nextIndex = gameDoc.data().currentQuestionIndex + 1;
   } 
+
+  if (nextIndex >= TOTAL_QUESTIONS) {
+    nextIndex = 0;
+  }
 
   // Aquí podrías añadir un límite para que no se pase del total de preguntas.
   // Por ahora, simplemente actualiza el índice.

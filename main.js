@@ -114,7 +114,11 @@ onSnapshot(gameRef, (docSnap) => {
     const gameData = docSnap.data();
     const questionIndex = gameData.currentQuestionIndex;
 
-    if (typeof questionIndex !== 'undefined' && questionIndex < preguntas.length) {
+    if (
+      typeof questionIndex !== 'undefined' &&
+      questionIndex >= 0 &&
+      questionIndex < preguntas.length
+    ) {
       displayQuestion(preguntas[questionIndex]);
       answeredCurrentQuestion = false; // Resetear para la nueva pregunta
     } else {
@@ -144,6 +148,7 @@ function displayQuestion(q) {
 // 4. Manejar la respuesta del jugador
 async function handleAnswer(selectedIndex, correctIndex) {
   if (answeredCurrentQuestion) return; // Evitar respuestas múltiples
+  if (!currentTeamName) return;
   answeredCurrentQuestion = true;
 
   const isCorrect = selectedIndex === correctIndex;
