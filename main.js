@@ -358,7 +358,7 @@ function displayQuestion(q) {
   q.opciones.forEach((opcion, index) => {
     const button = document.createElement('button');
     button.innerText = opcion;
-    button.className = 'bg-blue-500 text-white p-3 rounded-lg font-semibold hover:bg-blue-600 transition-transform transform hover:scale-105';
+    button.className = 'bg-[#070a16] text-gray-100 border border-cyan-500/30 p-3 rounded-lg font-extrabold hover:bg-[#0b1020] hover:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 transition-transform transform hover:scale-[1.02]';
     button.onclick = () => handleAnswer(index, q.correcta);
     optionsContainer.appendChild(button);
   });
@@ -406,11 +406,13 @@ async function handleAnswer(selectedIndex, correctIndex) {
   Array.from(optionsContainer.children).forEach((btn, idx) => {
     btn.disabled = true;
     if (idx === correctIndex) {
-      btn.classList.remove('bg-blue-500');
-      btn.classList.add('bg-green-600'); // La correcta se marca en verde
+      btn.classList.add('border-emerald-300/70');
+      btn.classList.add('bg-emerald-500');
+      btn.classList.add('text-gray-900');
     } else {
-      btn.classList.remove('bg-blue-500');
-      btn.classList.add('bg-gray-400'); // Las demás en gris
+      btn.classList.add('border-gray-600');
+      btn.classList.add('bg-[#0b1020]');
+      btn.classList.add('text-gray-400');
     }
   });
 }
@@ -426,8 +428,8 @@ onSnapshot(teamsQuery, (snapshot) => {
   snapshot.forEach(doc => {
     const team = doc.data();
     const teamElement = document.createElement('div');
-    teamElement.className = 'flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm';
-    teamElement.innerHTML = `<span class="font-semibold text-indigo-700">${team.name}</span><span class="font-bold text-xl">${team.points} pts</span>`;
+    teamElement.className = 'flex justify-between items-center bg-[#070a16] border border-cyan-500/20 p-3 rounded-lg';
+    teamElement.innerHTML = `<span class="font-extrabold text-cyan-200">${team.name}</span><span class="font-extrabold text-xl text-fuchsia-300">${team.points} pts</span>`;
     leaderboard.appendChild(teamElement);
   });
 }, (err) => {
