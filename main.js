@@ -177,7 +177,9 @@ const QUESTION_DURATION_SECONDS = 30;
 let lastTimerQuestionIndex = null;
 let lastTimerStartedAtMs = null;
 let timeoutPenalizedQuestionIndex = null;
-const TIMEOUT_POINTS_PENALTY = -1;
+const TIMEOUT_POINTS_PENALTY = -5;
+const CORRECT_POINTS = 10;
+const WRONG_POINTS = -10;
 
 function stopTimer() {
   if (timerIntervalId) {
@@ -217,10 +219,23 @@ function updateTimerUi() {
     ) {
       timeoutPenalizedQuestionIndex = currentQuestionIndex;
       const teamRef = doc(db, `games/${GAME_ID}/teams`, currentTeamName);
-      updateDoc(teamRef, {
+      const answerRef = doc(db, `games/${GAME_ID}/teams/${currentTeamName}/answers`, String(currentQuestionIndex));
+      const correctIndex = preguntas[currentQuestionIndex]?.correcta;
+      const batch = writeBatch(db);
+      batch.set(answerRef, {
+        questionIndex: currentQuestionIndex,
+        selectedIndex: null,
+        correctIndex: typeof correctIndex === 'number' ? correctIndex : null,
+        isCorrect: false,
+        timeout: true,
+        pointsChange: TIMEOUT_POINTS_PENALTY,
+        answeredAt: serverTimestamp()
+      });
+      batch.update(teamRef, {
         points: increment(TIMEOUT_POINTS_PENALTY),
         penalties: increment(1)
-      }).catch((err) => console.error(err));
+      });
+      batch.commit().catch((err) => console.error(err));
     }
 
     // Detener el temporizador cuando se acaba el tiempo
@@ -350,7 +365,7 @@ async function handleAnswer(selectedIndex, correctIndex) {
   stopTimer();
 
   const isCorrect = selectedIndex === correctIndex;
-  const pointsChange = isCorrect ? 2 : -1;
+  const pointsChange = isCorrect ? CORRECT_POINTS : WRONG_POINTS;
   const teamRef = doc(db, `games/${GAME_ID}/teams`, currentTeamName);
   const answerRef = doc(db, `games/${GAME_ID}/teams/${currentTeamName}/answers`, String(currentQuestionIndex));
 
