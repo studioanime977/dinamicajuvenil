@@ -3,34 +3,87 @@
 <head>
   <meta charset="UTF-8">
   <title>Panel del Líder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h2>👑 Panel del Líder</h2>
+<body class="bg-gray-900 min-h-screen text-gray-100 font-sans">
+  <div class="max-w-4xl mx-auto p-4 sm:p-8">
+    <div class="bg-gray-800 rounded-2xl shadow-xl p-6">
+      <h2 class="text-2xl sm:text-3xl font-extrabold">👑 Panel Admin</h2>
+      <p class="text-gray-300 mt-2">Control del juego y equipos.</p>
 
-  <input id="clave" placeholder="Clave de admin">
-  <button onclick="entrar()">Entrar</button>
+      <div class="mt-6 flex flex-col sm:flex-row gap-3">
+        <input id="clave" placeholder="Clave de admin" class="w-full sm:flex-1 px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <button id="btn-entrar" class="px-5 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 font-bold">Entrar</button>
+      </div>
 
-  <div id="panel" style="display:none;">
-    <hr>
-    <h3>Control de Preguntas</h3>
+      <p id="admin-status" class="text-sm text-gray-300 mt-3"></p>
+    </div>
 
-    <button onclick="abrir()">Abrir Pregunta</button>
-    <button onclick="cerrar()">Cerrar Pregunta</button>
+    <div id="panel" class="hidden mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 bg-gray-800 rounded-2xl shadow-xl p-6">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+          <h3 class="text-xl font-bold">Equipos</h3>
+          <div class="flex gap-2 flex-wrap">
+            <button id="btn-reset-points" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 font-bold">Restablecer puntos</button>
+            <button id="btn-reset-game" class="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 font-bold">Reiniciar juego</button>
+            <button id="btn-delete-teams" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 font-bold">Borrar equipos</button>
+          </div>
+        </div>
 
-    <p>Pregunta actual: <span id="pregunta">0</span></p>
+        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="bg-gray-900 rounded-xl p-4 border border-gray-700">
+            <p class="text-gray-400 text-xs">Pregunta actual</p>
+            <p id="current-question" class="text-lg font-extrabold">—</p>
+          </div>
+          <div class="bg-gray-900 rounded-xl p-4 border border-gray-700">
+            <p class="text-gray-400 text-xs">Equipos</p>
+            <p id="team-count" class="text-lg font-extrabold">0</p>
+          </div>
+          <div class="bg-gray-900 rounded-xl p-4 border border-gray-700">
+            <p class="text-gray-400 text-xs">Estado</p>
+            <p id="panel-status" class="text-sm text-gray-200">Listo</p>
+          </div>
+        </div>
 
-    <button onclick="siguiente()">➡️ Siguiente Pregunta</button>
+        <div class="mt-5 overflow-x-auto">
+          <table class="w-full text-left border-separate" style="border-spacing: 0 10px;">
+            <thead>
+              <tr class="text-gray-400 text-xs">
+                <th class="px-4">Equipo</th>
+                <th class="px-4">Puntos</th>
+                <th class="px-4">Penalizaciones</th>
+              </tr>
+            </thead>
+            <tbody id="teams-table"></tbody>
+          </table>
+        </div>
+      </div>
 
-    <hr>
-    <h3>Puntos de los Equipos</h3>
-    <ul id="lista"></ul>
+      <div class="bg-gray-800 rounded-2xl shadow-xl p-6">
+        <h3 class="text-xl font-bold">Preguntas (respuestas ocultas)</h3>
+        <p class="text-gray-300 text-sm mt-2">Toca el 👁️ para ver/ocultar la respuesta correcta.</p>
+        <div id="questions" class="mt-4 space-y-3"></div>
+      </div>
+    </div>
   </div>
 
   <!-- FIREBASE -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, updateDoc, collection, onSnapshot } 
-    from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      updateDoc,
+      collection,
+      query,
+      orderBy,
+      onSnapshot,
+      getDocs,
+      writeBatch
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC8xL6OM_ff7LqFJj_P87d9wVR-BT8OJsE",
@@ -44,51 +97,213 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    const GAME_ID = "main-game";
+    const gameRef = doc(db, `games/${GAME_ID}`);
+    const teamsRef = collection(db, `games/${GAME_ID}/teams`);
+
     const adminRef = doc(db, "config", "admin");
 
-    window.entrar = async () => {
-      const claveIngresada = document.getElementById("clave").value;
-      const snap = await getDoc(adminRef);
+    const panel = document.getElementById('panel');
+    const adminStatus = document.getElementById('admin-status');
+    const panelStatus = document.getElementById('panel-status');
+    const btnEntrar = document.getElementById('btn-entrar');
+    const btnResetPoints = document.getElementById('btn-reset-points');
+    const btnDeleteTeams = document.getElementById('btn-delete-teams');
+    const btnResetGame = document.getElementById('btn-reset-game');
+    const teamsTable = document.getElementById('teams-table');
+    const teamCount = document.getElementById('team-count');
+    const currentQuestion = document.getElementById('current-question');
+    const questionsEl = document.getElementById('questions');
 
-      if (snap.exists() && snap.data().clave === claveIngresada) {
-        document.getElementById("panel").style.display = "block";
-        escuchar();
-      } else {
-        alert("Clave incorrecta");
+    const preguntas = [
+      {
+        pregunta: "¿Cuál es la cita central del tema La Honra?",
+        opciones: ["1 Samuel 2:30", "Proverbios 3:5", "Salmo 23:1"],
+        correcta: 0
+      },
+      {
+        pregunta: "¿Qué significa honrar a Dios con mi vida?",
+        opciones: ["Solo ir a la iglesia", "Vivir como sacrificio agradable a Dios", "Ayunar todos los días"],
+        correcta: 1
+      },
+      {
+        pregunta: "¿Cómo honramos a Dios con nuestra familia?",
+        opciones: ["Ignorando responsabilidades", "Guiando a la familia en el camino del Señor", "Solo orando los domingos"],
+        correcta: 1
+      },
+      {
+        pregunta: "Honrar a los padres es...",
+        opciones: ["Una sugerencia con recompensa", "El primer mandamiento con promesa", "Una opción cultural"],
+        correcta: 1
       }
-    };
+    ];
 
-    window.abrir = async () => {
-      await updateDoc(adminRef, { estado: "abierta" });
-    };
+    function setStatus(text) {
+      panelStatus.textContent = text;
+    }
 
-    window.cerrar = async () => {
-      await updateDoc(adminRef, { estado: "cerrada" });
-    };
+    function renderQuestions() {
+      questionsEl.innerHTML = '';
+      preguntas.forEach((q, idx) => {
+        const card = document.createElement('div');
+        card.className = 'bg-gray-900 border border-gray-700 rounded-xl p-4';
 
-    window.siguiente = async () => {
-      const snap = await getDoc(adminRef);
-      await updateDoc(adminRef, {
-        preguntaActual: snap.data().preguntaActual + 1
-      });
-    };
+        const title = document.createElement('div');
+        title.className = 'font-bold';
+        title.textContent = `${idx + 1}. ${q.pregunta}`;
 
-    function escuchar() {
-      onSnapshot(adminRef, (docu) => {
-        document.getElementById("pregunta").innerText =
-          docu.data().preguntaActual;
-      });
-
-      onSnapshot(collection(db, "jugadores"), (snap) => {
-        const lista = document.getElementById("lista");
-        lista.innerHTML = "";
-        snap.forEach(d => {
-          const li = document.createElement("li");
-          li.textContent = `${d.data().nombre}: ${d.data().puntos} pts`;
-          lista.appendChild(li);
+        const options = document.createElement('div');
+        options.className = 'mt-3 space-y-1 text-sm text-gray-200';
+        q.opciones.forEach((opt, i) => {
+          const line = document.createElement('div');
+          line.textContent = `${String.fromCharCode(65 + i)}) ${opt}`;
+          options.appendChild(line);
         });
+
+        const footer = document.createElement('div');
+        footer.className = 'mt-4 flex items-center justify-between gap-3';
+
+        const answer = document.createElement('div');
+        answer.className = 'text-sm text-green-300 hidden';
+        answer.textContent = `Correcta: ${String.fromCharCode(65 + q.correcta)} ) ${q.opciones[q.correcta]}`;
+
+        const toggle = document.createElement('button');
+        toggle.className = 'px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 font-bold';
+        toggle.textContent = '👁️';
+        toggle.addEventListener('click', () => {
+          answer.classList.toggle('hidden');
+        });
+
+        footer.appendChild(answer);
+        footer.appendChild(toggle);
+
+        card.appendChild(title);
+        card.appendChild(options);
+        card.appendChild(footer);
+        questionsEl.appendChild(card);
       });
     }
+
+    async function entrar() {
+      adminStatus.textContent = '';
+      const claveIngresada = document.getElementById('clave').value;
+      let snap;
+      try {
+        snap = await getDoc(adminRef);
+      } catch (err) {
+        console.error(err);
+        adminStatus.textContent = 'Error leyendo la clave (posible error de permisos en Firestore).';
+        return;
+      }
+
+      if (snap.exists() && snap.data().clave === claveIngresada) {
+        panel.classList.remove('hidden');
+        adminStatus.textContent = 'Acceso concedido.';
+        escuchar();
+        renderQuestions();
+      } else {
+        adminStatus.textContent = 'Clave incorrecta.';
+      }
+    }
+
+    btnEntrar.addEventListener('click', entrar);
+
+    function escuchar() {
+      const teamsQuery = query(teamsRef, orderBy('points', 'desc'));
+
+      onSnapshot(gameRef, (snap) => {
+        if (!snap.exists()) {
+          currentQuestion.textContent = '—';
+          return;
+        }
+        const idx = snap.data().currentQuestionIndex;
+        if (typeof idx === 'number' && idx >= 0) {
+          currentQuestion.textContent = `#${idx + 1}`;
+        } else {
+          currentQuestion.textContent = 'No iniciada';
+        }
+      }, (err) => {
+        console.error(err);
+        currentQuestion.textContent = '—';
+      });
+
+      onSnapshot(teamsQuery, (snap) => {
+        teamCount.textContent = snap.size;
+        teamsTable.innerHTML = '';
+        snap.forEach((d) => {
+          const team = d.data();
+          const tr = document.createElement('tr');
+          tr.className = 'bg-gray-900 border border-gray-700';
+
+          const tdName = document.createElement('td');
+          tdName.className = 'px-4 py-3 rounded-l-xl font-bold';
+          tdName.textContent = team.name ?? d.id;
+
+          const tdPoints = document.createElement('td');
+          tdPoints.className = 'px-4 py-3 font-extrabold text-indigo-300';
+          tdPoints.textContent = String(team.points ?? 0);
+
+          const tdPen = document.createElement('td');
+          tdPen.className = 'px-4 py-3 rounded-r-xl text-gray-200';
+          tdPen.textContent = String(team.penalties ?? 0);
+
+          tr.appendChild(tdName);
+          tr.appendChild(tdPoints);
+          tr.appendChild(tdPen);
+          teamsTable.appendChild(tr);
+        });
+      }, (err) => {
+        console.error(err);
+        teamsTable.innerHTML = '';
+        setStatus('Sin permisos para leer equipos (Firestore).');
+      });
+    }
+
+    btnResetGame.addEventListener('click', async () => {
+      if (!confirm('¿Reiniciar el juego? Esto pone la pregunta en estado no iniciado.')) return;
+      setStatus('Reiniciando juego...');
+      try {
+        await setDoc(gameRef, { currentQuestionIndex: -1 }, { merge: true });
+        setStatus('Juego reiniciado.');
+      } catch (err) {
+        console.error(err);
+        setStatus('No se pudo reiniciar (posible error de permisos en Firestore).');
+      }
+    });
+
+    btnResetPoints.addEventListener('click', async () => {
+      if (!confirm('¿Restablecer puntos y penalizaciones de TODOS los equipos a 0?')) return;
+      setStatus('Restableciendo puntos...');
+      try {
+        const snap = await getDocs(teamsRef);
+        const batch = writeBatch(db);
+        snap.forEach((d) => {
+          batch.update(d.ref, { points: 0, penalties: 0 });
+        });
+        await batch.commit();
+        setStatus('Puntos restablecidos.');
+      } catch (err) {
+        console.error(err);
+        setStatus('No se pudo restablecer puntos (posible error de permisos en Firestore).');
+      }
+    });
+
+    btnDeleteTeams.addEventListener('click', async () => {
+      if (!confirm('¿BORRAR TODOS los equipos y su información?')) return;
+      setStatus('Borrando equipos...');
+      try {
+        const snap = await getDocs(teamsRef);
+        const batch = writeBatch(db);
+        snap.forEach((d) => {
+          batch.delete(d.ref);
+        });
+        await batch.commit();
+        setStatus('Equipos borrados.');
+      } catch (err) {
+        console.error(err);
+        setStatus('No se pudo borrar equipos (posible error de permisos en Firestore).');
+      }
+    });
   </script>
 </body>
 </html>
