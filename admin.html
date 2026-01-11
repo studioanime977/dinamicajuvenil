@@ -25,6 +25,7 @@
         <div class="flex items-center justify-between gap-4 flex-wrap">
           <h3 class="text-xl font-bold">Equipos</h3>
           <div class="flex gap-2 flex-wrap">
+            <button id="btn-next-question" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 font-bold">Siguiente Pregunta</button>
             <button id="btn-reset-points" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 font-bold">Restablecer puntos</button>
             <button id="btn-reset-game" class="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 font-bold">Reiniciar juego</button>
             <button id="btn-delete-teams" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 font-bold">Borrar equipos</button>
@@ -58,6 +59,24 @@
             <tbody id="teams-table"></tbody>
           </table>
         </div>
+
+        <div class="mt-8">
+          <h4 class="text-lg font-bold">Respuestas (pregunta actual)</h4>
+          <p class="text-gray-300 text-sm mt-1">Se actualiza en vivo cuando los equipos contestan.</p>
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full text-left border-separate" style="border-spacing: 0 10px;">
+              <thead>
+                <tr class="text-gray-400 text-xs">
+                  <th class="px-4">Equipo</th>
+                  <th class="px-4">Respuesta</th>
+                  <th class="px-4">Correcta</th>
+                  <th class="px-4">Puntos</th>
+                </tr>
+              </thead>
+              <tbody id="answers-table"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <div class="bg-gray-800 rounded-2xl shadow-xl p-6">
@@ -78,9 +97,11 @@
       setDoc,
       updateDoc,
       collection,
+      collectionGroup,
       query,
       orderBy,
       onSnapshot,
+      where,
       getDocs,
       writeBatch
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -107,39 +128,224 @@
     const adminStatus = document.getElementById('admin-status');
     const panelStatus = document.getElementById('panel-status');
     const btnEntrar = document.getElementById('btn-entrar');
+    const btnNextQuestion = document.getElementById('btn-next-question');
     const btnResetPoints = document.getElementById('btn-reset-points');
     const btnDeleteTeams = document.getElementById('btn-delete-teams');
     const btnResetGame = document.getElementById('btn-reset-game');
     const teamsTable = document.getElementById('teams-table');
+    const answersTable = document.getElementById('answers-table');
     const teamCount = document.getElementById('team-count');
     const currentQuestion = document.getElementById('current-question');
     const questionsEl = document.getElementById('questions');
 
+    let currentQuestionIndex = -1;
+    let unsubscribeAnswers = null;
+
     const preguntas = [
       {
-        pregunta: "¿Cuál es la cita central del tema La Honra?",
-        opciones: ["1 Samuel 2:30", "Proverbios 3:5", "Salmo 23:1"],
-        correcta: 0
-      },
-      {
-        pregunta: "¿Qué significa honrar a Dios con mi vida?",
-        opciones: ["Solo ir a la iglesia", "Vivir como sacrificio agradable a Dios", "Ayunar todos los días"],
+        pregunta: "Según 1 Samuel 2:30, Dios promete honrar a:",
+        opciones: ["Los fuertes", "Los que lo honran", "Los que ayunan", "Los líderes"],
         correcta: 1
       },
       {
-        pregunta: "¿Cómo honramos a Dios con nuestra familia?",
-        opciones: ["Ignorando responsabilidades", "Guiando a la familia en el camino del Señor", "Solo orando los domingos"],
+        pregunta: "En la Biblia, honrar significa:",
+        opciones: ["Exaltar el ego", "Obedecer y respetar", "Ser famoso", "Tener autoridad"],
         correcta: 1
       },
       {
-        pregunta: "Honrar a los padres es...",
-        opciones: ["Una sugerencia con recompensa", "El primer mandamiento con promesa", "Una opción cultural"],
+        pregunta: "Honramos a Dios cuando:",
+        opciones: ["Hablamos bonito", "Vivimos en obediencia", "Solo vamos a la iglesia", "Cantamos fuerte"],
         correcta: 1
+      },
+      {
+        pregunta: "Romanos 12:1 enseña que la honra se demuestra con:",
+        opciones: ["Sacrificios externos", "Nuestro cuerpo como sacrificio vivo", "Ofrendas económicas", "Ayunos largos"],
+        correcta: 1
+      },
+      {
+        pregunta: "Honrar a los padres trae como resultado:",
+        opciones: ["Fama", "Larga vida", "Riqueza inmediata", "Poder"],
+        correcta: 1
+      },
+      {
+        pregunta: "Proverbios 3:9 enseña honrar a Dios con:",
+        opciones: ["Palabras", "Tiempo", "Bienes", "Ayuno"],
+        correcta: 2
+      },
+      {
+        pregunta: "Honrar a Dios incluye obedecer cuando:",
+        opciones: ["Es cómodo", "Es público", "Nadie ve", "Hay recompensa"],
+        correcta: 2
+      },
+      {
+        pregunta: "Honra verdadera se demuestra con:",
+        opciones: ["Intenciones", "Emociones", "Acciones", "Apariencia"],
+        correcta: 2
+      },
+      {
+        pregunta: "Juan 5:23 enseña que honrar al Hijo es:",
+        opciones: ["Opcional", "Igual a honrar al Padre", "Solo para líderes", "Algo simbólico"],
+        correcta: 1
+      },
+      {
+        pregunta: "Honrar a la familia implica:",
+        opciones: ["Palabras bonitas", "Responsabilidad y cuidado", "Control", "Autoridad"],
+        correcta: 1
+      },
+      {
+        pregunta: "La honra produce:",
+        opciones: ["Orgullo", "Bendición", "Confusión", "Temor"],
+        correcta: 1
+      },
+      {
+        pregunta: "La honra comienza primero en:",
+        opciones: ["La iglesia", "La sociedad", "El corazón", "El dinero"],
+        correcta: 2
+      },
+
+      {
+        pregunta: "La deshonra es:",
+        opciones: ["Falta de conocimiento", "Desobediencia y desprecio", "Ignorancia", "Debilidad"],
+        correcta: 1
+      },
+      {
+        pregunta: "Según Proverbios 11:2, la deshonra trae:",
+        opciones: ["Paz", "Prosperidad", "Humillación", "Autoridad"],
+        correcta: 2
+      },
+      {
+        pregunta: "Deshonrar a los padres provoca:",
+        opciones: ["Bendición", "Consecuencias negativas", "Fama", "Sabiduría"],
+        correcta: 1
+      },
+      {
+        pregunta: "Malaquías 1:6 muestra deshonra cuando:",
+        opciones: ["Dios no responde", "Se da lo peor a Dios", "Se ora poco", "No se canta"],
+        correcta: 1
+      },
+      {
+        pregunta: "La deshonra se manifiesta cuando:",
+        opciones: ["Hay silencio", "Hay rebeldía", "Hay humildad", "Hay servicio"],
+        correcta: 1
+      },
+      {
+        pregunta: "Según la Biblia, hablar mal de autoridades es:",
+        opciones: ["Libertad", "Opinión", "Deshonra", "Corrección"],
+        correcta: 2
+      },
+      {
+        pregunta: "La deshonra bloquea:",
+        opciones: ["El perdón", "La bendición", "El tiempo", "El conocimiento"],
+        correcta: 1
+      },
+      {
+        pregunta: "Deshonrar a Dios ocurre cuando:",
+        opciones: ["No entendemos", "Vivimos en pecado consciente", "Oramos poco", "No ayunamos"],
+        correcta: 1
+      },
+      {
+        pregunta: "La deshonra produce:",
+        opciones: ["Orden", "Confianza", "Conflictos", "Gozo"],
+        correcta: 2
+      },
+      {
+        pregunta: "Ejemplo claro de deshonra es:",
+        opciones: ["Obedecer con gozo", "Servir con amor", "Menospreciar la autoridad", "Respetar normas"],
+        correcta: 2
+      },
+      {
+        pregunta: "La deshonra comienza cuando:",
+        opciones: ["Se habla", "Se piensa mal", "Se actúa", "Se decide obedecer"],
+        correcta: 1
+      },
+      {
+        pregunta: "El antídoto bíblico contra la deshonra es:",
+        opciones: ["El silencio", "El castigo", "El arrepentimiento y la obediencia", "El temor humano"],
+        correcta: 2
       }
     ];
 
     function setStatus(text) {
       panelStatus.textContent = text;
+    }
+
+    function renderAnswersEmpty(message) {
+      answersTable.innerHTML = '';
+      const tr = document.createElement('tr');
+      tr.className = 'bg-gray-900 border border-gray-700';
+      const td = document.createElement('td');
+      td.colSpan = 4;
+      td.className = 'px-4 py-3 rounded-xl text-gray-300';
+      td.textContent = message;
+      tr.appendChild(td);
+      answersTable.appendChild(tr);
+    }
+
+    function listenAnswersForQuestion(index) {
+      if (unsubscribeAnswers) {
+        unsubscribeAnswers();
+        unsubscribeAnswers = null;
+      }
+
+      if (typeof index !== 'number' || index < 0) {
+        renderAnswersEmpty('Sin pregunta activa.');
+        return;
+      }
+
+      renderAnswersEmpty('Esperando respuestas...');
+
+      const answersQuery = query(
+        collectionGroup(db, 'answers'),
+        where('questionIndex', '==', index)
+      );
+
+      unsubscribeAnswers = onSnapshot(answersQuery, (snap) => {
+        answersTable.innerHTML = '';
+        if (snap.empty) {
+          renderAnswersEmpty('Esperando respuestas...');
+          return;
+        }
+
+        snap.forEach((d) => {
+          const data = d.data();
+          const teamId = d.ref.parent?.parent?.id ?? '—';
+          const selectedLetter = typeof data.selectedIndex === 'number' ? String.fromCharCode(65 + data.selectedIndex) : '—';
+          const correctLetter = typeof data.correctIndex === 'number' ? String.fromCharCode(65 + data.correctIndex) : '—';
+          const isCorrect = !!data.isCorrect;
+
+          const tr = document.createElement('tr');
+          tr.className = 'bg-gray-900 border border-gray-700';
+
+          const tdTeam = document.createElement('td');
+          tdTeam.className = 'px-4 py-3 rounded-l-xl font-bold';
+          tdTeam.textContent = teamId;
+
+          const tdSel = document.createElement('td');
+          tdSel.className = 'px-4 py-3';
+          tdSel.textContent = selectedLetter;
+
+          const tdCorrect = document.createElement('td');
+          tdCorrect.className = `px-4 py-3 font-bold ${isCorrect ? 'text-green-300' : 'text-red-300'}`;
+          tdCorrect.textContent = correctLetter;
+
+          const tdPoints = document.createElement('td');
+          tdPoints.className = 'px-4 py-3 rounded-r-xl';
+          tdPoints.textContent = String(data.pointsChange ?? '—');
+
+          tr.appendChild(tdTeam);
+          tr.appendChild(tdSel);
+          tr.appendChild(tdCorrect);
+          tr.appendChild(tdPoints);
+          answersTable.appendChild(tr);
+        });
+      }, (err) => {
+        console.error(err);
+        if (err?.code === 'permission-denied') {
+          renderAnswersEmpty('Sin permisos para leer respuestas (Firestore).');
+        } else {
+          renderAnswersEmpty('Error leyendo respuestas.');
+        }
+      });
     }
 
     function renderQuestions() {
@@ -148,9 +354,19 @@
         const card = document.createElement('div');
         card.className = 'bg-gray-900 border border-gray-700 rounded-xl p-4';
 
+        const header = document.createElement('div');
+        header.className = 'flex items-start justify-between gap-3';
+
         const title = document.createElement('div');
         title.className = 'font-bold';
         title.textContent = `${idx + 1}. ${q.pregunta}`;
+
+        const toggleQuestion = document.createElement('button');
+        toggleQuestion.className = 'shrink-0 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 font-bold text-sm';
+        toggleQuestion.textContent = 'Mostrar';
+
+        header.appendChild(title);
+        header.appendChild(toggleQuestion);
 
         const options = document.createElement('div');
         options.className = 'mt-3 space-y-1 text-sm text-gray-200';
@@ -177,9 +393,22 @@
         footer.appendChild(answer);
         footer.appendChild(toggle);
 
-        card.appendChild(title);
-        card.appendChild(options);
-        card.appendChild(footer);
+        const content = document.createElement('div');
+        content.className = 'hidden';
+        content.appendChild(options);
+        content.appendChild(footer);
+
+        toggleQuestion.addEventListener('click', () => {
+          const willShow = content.classList.contains('hidden');
+          content.classList.toggle('hidden');
+          toggleQuestion.textContent = willShow ? 'Ocultar' : 'Mostrar';
+          if (!willShow) {
+            answer.classList.add('hidden');
+          }
+        });
+
+        card.appendChild(header);
+        card.appendChild(content);
         questionsEl.appendChild(card);
       });
     }
@@ -217,11 +446,14 @@
           return;
         }
         const idx = snap.data().currentQuestionIndex;
+        currentQuestionIndex = typeof idx === 'number' ? idx : -1;
         if (typeof idx === 'number' && idx >= 0) {
           currentQuestion.textContent = `#${idx + 1}`;
         } else {
           currentQuestion.textContent = 'No iniciada';
         }
+
+        listenAnswersForQuestion(currentQuestionIndex);
       }, (err) => {
         console.error(err);
         currentQuestion.textContent = '—';
@@ -258,6 +490,23 @@
         setStatus('Sin permisos para leer equipos (Firestore).');
       });
     }
+
+    btnNextQuestion.addEventListener('click', async () => {
+      setStatus('Avanzando pregunta...');
+      try {
+        const gameDoc = await getDoc(gameRef);
+        let nextIndex = 0;
+        if (gameDoc.exists() && typeof gameDoc.data().currentQuestionIndex !== 'undefined') {
+          nextIndex = gameDoc.data().currentQuestionIndex + 1;
+        }
+        if (nextIndex >= preguntas.length) nextIndex = 0;
+        await setDoc(gameRef, { currentQuestionIndex: nextIndex }, { merge: true });
+        setStatus('Pregunta actualizada.');
+      } catch (err) {
+        console.error(err);
+        setStatus('No se pudo avanzar (posible error de permisos en Firestore).');
+      }
+    });
 
     btnResetGame.addEventListener('click', async () => {
       if (!confirm('¿Reiniciar el juego? Esto pone la pregunta en estado no iniciado.')) return;

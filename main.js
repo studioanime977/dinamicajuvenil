@@ -7,7 +7,7 @@
 // 📦 IMPORTACIONES DE FIREBASE
 // -----------------------------------------------------------------------------------------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, setDoc, onSnapshot, collection, query, orderBy, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, onSnapshot, collection, query, orderBy, updateDoc, increment, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // -----------------------------------------------------------------------------------------------
 // ⚙️ CONFIGURACIÓN DE FIREBASE
@@ -32,43 +32,125 @@ const db = getFirestore(app);
 // -----------------------------------------------------------------------------------------------
 const preguntas = [
   {
-    pregunta: "¿Cuál es la cita central del tema La Honra?",
-    opciones: [
-      "1 Samuel 2:30",
-      "Proverbios 3:5",
-      "Salmo 23:1"
-    ],
-    correcta: 0 // Índice de la opción correcta
+    pregunta: "Según 1 Samuel 2:30, Dios promete honrar a:",
+    opciones: ["Los fuertes", "Los que lo honran", "Los que ayunan", "Los líderes"],
+    correcta: 1
   },
   {
-    pregunta: "¿Qué significa honrar a Dios con mi vida?",
-    opciones: [
-      "Solo ir a la iglesia",
-      "Vivir como sacrificio agradable a Dios",
-      "Ayunar todos los días"
-    ],
-    correcta: 1,
-    cita: "Salmo 51:16 y Romanos 12:1"
+    pregunta: "En la Biblia, honrar significa:",
+    opciones: ["Exaltar el ego", "Obedecer y respetar", "Ser famoso", "Tener autoridad"],
+    correcta: 1
   },
   {
-    pregunta: "¿Cómo honramos a Dios con nuestra familia?",
-    opciones: [
-      "Ignorando responsabilidades",
-      "Guiando a la familia en el camino del Señor",
-      "Solo orando los domingos"
-    ],
-    correcta: 1,
-    cita: "Josué 24:15, 1 Timoteo 5:8"
+    pregunta: "Honramos a Dios cuando:",
+    opciones: ["Hablamos bonito", "Vivimos en obediencia", "Solo vamos a la iglesia", "Cantamos fuerte"],
+    correcta: 1
   },
-    {
-    pregunta: "Honrar a los padres es...",
-    opciones: [
-      "Una sugerencia con recompensa",
-      "El primer mandamiento con promesa",
-      "Una opción cultural"
-    ],
-    correcta: 1,
-    cita: "Efesios 6:2"
+  {
+    pregunta: "Romanos 12:1 enseña que la honra se demuestra con:",
+    opciones: ["Sacrificios externos", "Nuestro cuerpo como sacrificio vivo", "Ofrendas económicas", "Ayunos largos"],
+    correcta: 1
+  },
+  {
+    pregunta: "Honrar a los padres trae como resultado:",
+    opciones: ["Fama", "Larga vida", "Riqueza inmediata", "Poder"],
+    correcta: 1
+  },
+  {
+    pregunta: "Proverbios 3:9 enseña honrar a Dios con:",
+    opciones: ["Palabras", "Tiempo", "Bienes", "Ayuno"],
+    correcta: 2
+  },
+  {
+    pregunta: "Honrar a Dios incluye obedecer cuando:",
+    opciones: ["Es cómodo", "Es público", "Nadie ve", "Hay recompensa"],
+    correcta: 2
+  },
+  {
+    pregunta: "Honra verdadera se demuestra con:",
+    opciones: ["Intenciones", "Emociones", "Acciones", "Apariencia"],
+    correcta: 2
+  },
+  {
+    pregunta: "Juan 5:23 enseña que honrar al Hijo es:",
+    opciones: ["Opcional", "Igual a honrar al Padre", "Solo para líderes", "Algo simbólico"],
+    correcta: 1
+  },
+  {
+    pregunta: "Honrar a la familia implica:",
+    opciones: ["Palabras bonitas", "Responsabilidad y cuidado", "Control", "Autoridad"],
+    correcta: 1
+  },
+  {
+    pregunta: "La honra produce:",
+    opciones: ["Orgullo", "Bendición", "Confusión", "Temor"],
+    correcta: 1
+  },
+  {
+    pregunta: "La honra comienza primero en:",
+    opciones: ["La iglesia", "La sociedad", "El corazón", "El dinero"],
+    correcta: 2
+  },
+
+  {
+    pregunta: "La deshonra es:",
+    opciones: ["Falta de conocimiento", "Desobediencia y desprecio", "Ignorancia", "Debilidad"],
+    correcta: 1
+  },
+  {
+    pregunta: "Según Proverbios 11:2, la deshonra trae:",
+    opciones: ["Paz", "Prosperidad", "Humillación", "Autoridad"],
+    correcta: 2
+  },
+  {
+    pregunta: "Deshonrar a los padres provoca:",
+    opciones: ["Bendición", "Consecuencias negativas", "Fama", "Sabiduría"],
+    correcta: 1
+  },
+  {
+    pregunta: "Malaquías 1:6 muestra deshonra cuando:",
+    opciones: ["Dios no responde", "Se da lo peor a Dios", "Se ora poco", "No se canta"],
+    correcta: 1
+  },
+  {
+    pregunta: "La deshonra se manifiesta cuando:",
+    opciones: ["Hay silencio", "Hay rebeldía", "Hay humildad", "Hay servicio"],
+    correcta: 1
+  },
+  {
+    pregunta: "Según la Biblia, hablar mal de autoridades es:",
+    opciones: ["Libertad", "Opinión", "Deshonra", "Corrección"],
+    correcta: 2
+  },
+  {
+    pregunta: "La deshonra bloquea:",
+    opciones: ["El perdón", "La bendición", "El tiempo", "El conocimiento"],
+    correcta: 1
+  },
+  {
+    pregunta: "Deshonrar a Dios ocurre cuando:",
+    opciones: ["No entendemos", "Vivimos en pecado consciente", "Oramos poco", "No ayunamos"],
+    correcta: 1
+  },
+  {
+    pregunta: "La deshonra produce:",
+    opciones: ["Orden", "Confianza", "Conflictos", "Gozo"],
+    correcta: 2
+  },
+  {
+    pregunta: "Ejemplo claro de deshonra es:",
+    opciones: ["Obedecer con gozo", "Servir con amor", "Menospreciar la autoridad", "Respetar normas"],
+    correcta: 2
+  },
+  {
+    pregunta: "La deshonra comienza cuando:",
+    opciones: ["Se habla", "Se piensa mal", "Se actúa", "Se decide obedecer"],
+    correcta: 1
+  },
+  {
+    pregunta: "El antídoto bíblico contra la deshonra es:",
+    opciones: ["El silencio", "El castigo", "El arrepentimiento y la obediencia", "El temor humano"],
+    correcta: 2
   }
 ];
 
@@ -87,6 +169,7 @@ const statusDisplay = document.getElementById('status');
 let currentTeamName = null;
 const GAME_ID = "main-game";
 let answeredCurrentQuestion = false;
+let currentQuestionIndex = -1;
 
 // -----------------------------------------------------------------------------------------------
 // 🕹️ LÓGICA DEL JUEGO
@@ -125,13 +208,16 @@ onSnapshot(gameRef, (docSnap) => {
       questionIndex >= 0 &&
       questionIndex < preguntas.length
     ) {
+      currentQuestionIndex = questionIndex;
       displayQuestion(preguntas[questionIndex]);
       answeredCurrentQuestion = false; // Resetear para la nueva pregunta
     } else {
+      currentQuestionIndex = -1;
       questionDisplay.innerText = "Esperando que el líder inicie el juego...";
       optionsContainer.innerHTML = '';
     }
   } else {
+    currentQuestionIndex = -1;
     // El líder aún no ha creado el documento del juego
     questionDisplay.innerText = "El juego aún no ha comenzado.";
   }
@@ -162,14 +248,26 @@ function displayQuestion(q) {
 async function handleAnswer(selectedIndex, correctIndex) {
   if (answeredCurrentQuestion) return; // Evitar respuestas múltiples
   if (!currentTeamName) return;
+  if (currentQuestionIndex < 0 || currentQuestionIndex >= preguntas.length) return;
   answeredCurrentQuestion = true;
 
   const isCorrect = selectedIndex === correctIndex;
   const pointsChange = isCorrect ? 2 : -1;
   const teamRef = doc(db, `games/${GAME_ID}/teams`, currentTeamName);
+  const answerRef = doc(db, `games/${GAME_ID}/teams/${currentTeamName}/answers`, String(currentQuestionIndex));
 
   try {
-    await updateDoc(teamRef, { points: increment(pointsChange) });
+    const batch = writeBatch(db);
+    batch.set(answerRef, {
+      questionIndex: currentQuestionIndex,
+      selectedIndex,
+      correctIndex,
+      isCorrect,
+      pointsChange,
+      answeredAt: serverTimestamp()
+    });
+    batch.update(teamRef, { points: increment(pointsChange) });
+    await batch.commit();
   } catch (err) {
     console.error(err);
     answeredCurrentQuestion = false;

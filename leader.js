@@ -36,7 +36,7 @@ const questionStatusDisplay = document.getElementById('current-question-status')
 const teamCountDisplay = document.getElementById('team-count');
 
 const GAME_ID = "main-game";
-const TOTAL_QUESTIONS = 4;
+const TOTAL_QUESTIONS = 24;
 
 // -----------------------------------------------------------------------------------------------
 // 🕹️ LÓGICA DEL PANEL DE LÍDER
