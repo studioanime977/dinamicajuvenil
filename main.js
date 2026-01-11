@@ -180,6 +180,7 @@ let timeoutPenalizedQuestionIndex = null;
 const TIMEOUT_POINTS_PENALTY = -5;
 const CORRECT_POINTS = 10;
 const WRONG_POINTS = -10;
+let gameEnded = false;
 
 function stopTimer() {
   if (timerIntervalId) {
@@ -282,6 +283,17 @@ const gameRef = doc(db, `games/${GAME_ID}`);
 onSnapshot(gameRef, (docSnap) => {
   if (docSnap.exists()) {
     const gameData = docSnap.data();
+    gameEnded = !!gameData.ended;
+    if (gameEnded) {
+      currentQuestionIndex = -1;
+      lastTimerQuestionIndex = null;
+      lastTimerStartedAtMs = null;
+      timeoutPenalizedQuestionIndex = null;
+      resetTimerState();
+      questionDisplay.innerText = '✅ Juego terminado.';
+      optionsContainer.innerHTML = '';
+      return;
+    }
     const questionIndex = gameData.currentQuestionIndex;
     const startedAt = gameData.questionStartedAt;
     const startedAtMs = startedAt && typeof startedAt.toMillis === 'function' ? startedAt.toMillis() : null;
@@ -315,6 +327,7 @@ onSnapshot(gameRef, (docSnap) => {
       optionsContainer.innerHTML = '';
     }
   } else {
+    gameEnded = false;
     currentQuestionIndex = -1;
     lastTimerQuestionIndex = null;
     lastTimerStartedAtMs = null;
@@ -333,6 +346,7 @@ onSnapshot(gameRef, (docSnap) => {
   lastTimerQuestionIndex = null;
   lastTimerStartedAtMs = null;
   timeoutPenalizedQuestionIndex = null;
+  gameEnded = false;
   resetTimerState();
 });
 
@@ -432,7 +446,8 @@ document.addEventListener('visibilitychange', async () => {
     currentTeamName &&
     currentQuestionIndex >= 0 &&
     typeof questionStartedAtMs === 'number' &&
-    !answeredCurrentQuestion
+    !answeredCurrentQuestion &&
+    !gameEnded
   ) {
     const teamRef = doc(db, `games/${GAME_ID}/teams`, currentTeamName);
     try {

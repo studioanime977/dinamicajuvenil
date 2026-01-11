@@ -26,6 +26,7 @@
           <h3 class="text-xl font-bold">Equipos</h3>
           <div class="flex gap-2 flex-wrap">
             <button id="btn-next-question" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 font-bold">Siguiente Pregunta</button>
+            <button id="btn-end-game" class="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-extrabold">Terminar juego</button>
             <button id="btn-reset-points" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 font-bold">Restablecer puntos</button>
             <button id="btn-reset-game" class="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 font-bold">Reiniciar juego</button>
             <button id="btn-delete-teams" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 font-bold">Borrar equipos</button>
@@ -74,6 +75,29 @@
                 </tr>
               </thead>
               <tbody id="answers-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="final-report" class="hidden mt-10">
+          <div class="flex items-center justify-between gap-4 flex-wrap">
+            <h4 class="text-lg font-bold">Reporte final</h4>
+            <span id="final-report-status" class="text-sm text-gray-300"></span>
+          </div>
+          <p class="text-gray-300 text-sm mt-1">Puntos + correctas/incorrectas/timeout y % de conocimiento.</p>
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full text-left border-separate" style="border-spacing: 0 10px;">
+              <thead>
+                <tr class="text-gray-400 text-xs">
+                  <th class="px-4">Equipo</th>
+                  <th class="px-4">Puntos</th>
+                  <th class="px-4">Buenas</th>
+                  <th class="px-4">Malas</th>
+                  <th class="px-4">Sin responder</th>
+                  <th class="px-4">% Conocimiento</th>
+                </tr>
+              </thead>
+              <tbody id="final-report-table"></tbody>
             </table>
           </div>
         </div>
@@ -130,6 +154,7 @@
     const panelStatus = document.getElementById('panel-status');
     const btnEntrar = document.getElementById('btn-entrar');
     const btnNextQuestion = document.getElementById('btn-next-question');
+    const btnEndGame = document.getElementById('btn-end-game');
     const btnResetPoints = document.getElementById('btn-reset-points');
     const btnDeleteTeams = document.getElementById('btn-delete-teams');
     const btnResetGame = document.getElementById('btn-reset-game');
@@ -138,6 +163,9 @@
     const teamCount = document.getElementById('team-count');
     const currentQuestion = document.getElementById('current-question');
     const questionsEl = document.getElementById('questions');
+    const finalReport = document.getElementById('final-report');
+    const finalReportStatus = document.getElementById('final-report-status');
+    const finalReportTable = document.getElementById('final-report-table');
 
     let currentQuestionIndex = -1;
     let unsubscribeAnswers = null;
@@ -268,6 +296,125 @@
 
     function setStatus(text) {
       panelStatus.textContent = text;
+    }
+
+    function setFinalReportStatus(text) {
+      finalReportStatus.textContent = text;
+    }
+
+    function renderFinalRow({ teamId, points, correct, wrong, timeout, knowledgePercent }) {
+      const tr = document.createElement('tr');
+      tr.className = 'bg-gray-900 border border-gray-700';
+
+      const tdTeam = document.createElement('td');
+      tdTeam.className = 'px-4 py-3 rounded-l-xl font-bold';
+      tdTeam.textContent = teamId;
+
+      const tdPoints = document.createElement('td');
+      tdPoints.className = 'px-4 py-3 font-extrabold text-indigo-300';
+      tdPoints.textContent = String(points ?? 0);
+
+      const tdC = document.createElement('td');
+      tdC.className = 'px-4 py-3 text-green-300 font-bold';
+      tdC.textContent = String(correct);
+
+      const tdW = document.createElement('td');
+      tdW.className = 'px-4 py-3 text-red-300 font-bold';
+      tdW.textContent = String(wrong);
+
+      const tdT = document.createElement('td');
+      tdT.className = 'px-4 py-3 text-yellow-300 font-bold';
+      tdT.textContent = String(timeout);
+
+      const tdP = document.createElement('td');
+      tdP.className = 'px-4 py-3 rounded-r-xl font-extrabold';
+      tdP.textContent = `${knowledgePercent}%`;
+
+      tr.appendChild(tdTeam);
+      tr.appendChild(tdPoints);
+      tr.appendChild(tdC);
+      tr.appendChild(tdW);
+      tr.appendChild(tdT);
+      tr.appendChild(tdP);
+      finalReportTable.appendChild(tr);
+    }
+
+    async function finishGame() {
+      if (!confirm('¿Terminar el juego? Esto mostrará el reporte final.')) return;
+
+      setStatus('Terminando juego...');
+      finalReport.classList.remove('hidden');
+      finalReportTable.innerHTML = '';
+      setFinalReportStatus('Calculando...');
+
+      try {
+        await setDoc(gameRef, { ended: true, endedAt: serverTimestamp(), currentQuestionIndex: -1, questionStartedAt: null }, { merge: true });
+      } catch (err) {
+        console.error(err);
+        setStatus('No se pudo marcar terminado (posible error de permisos en Firestore).');
+        setFinalReportStatus('Error marcando terminado.');
+        return;
+      }
+
+      try {
+        const teamsSnap = await getDocs(teamsRef);
+        const totalQuestions = preguntas.length;
+
+        for (const teamDoc of teamsSnap.docs) {
+          const teamId = teamDoc.id;
+          const teamData = teamDoc.data();
+
+          let correct = 0;
+          let wrong = 0;
+          let timeout = 0;
+
+          const answersRef = collection(db, `games/${GAME_ID}/teams/${teamId}/answers`);
+          const answersSnap = await getDocs(answersRef);
+          answersSnap.forEach((a) => {
+            const ad = a.data();
+            if (ad?.timeout) {
+              timeout += 1;
+              return;
+            }
+            if (ad?.isCorrect) correct += 1;
+            else wrong += 1;
+          });
+
+          const knowledgePercent = totalQuestions > 0 ? Math.round((correct / totalQuestions) * 100) : 0;
+
+          renderFinalRow({
+            teamId,
+            points: teamData?.points ?? 0,
+            correct,
+            wrong,
+            timeout,
+            knowledgePercent
+          });
+
+          // Guardar resumen en el doc del equipo para que quede persistente
+          try {
+            await setDoc(teamDoc.ref, {
+              stats: {
+                totalQuestions,
+                correct,
+                wrong,
+                timeout,
+                knowledgePercent,
+                updatedAt: serverTimestamp()
+              }
+            }, { merge: true });
+          } catch (err) {
+            console.error(err);
+          }
+        }
+
+        setStatus('Juego terminado.');
+        setFinalReportStatus('Listo.');
+      } catch (err) {
+        console.error(err);
+        setStatus('Juego terminado, pero falló el cálculo del reporte.');
+        setFinalReportStatus('Error calculando reporte.');
+      }
     }
 
     function renderAnswersEmpty(message) {
@@ -430,7 +577,7 @@
         panel.classList.remove('hidden');
         adminStatus.textContent = 'Acceso concedido.';
         try {
-          await setDoc(gameRef, { currentQuestionIndex: -1, questionStartedAt: null }, { merge: true });
+          await setDoc(gameRef, { currentQuestionIndex: -1, questionStartedAt: null, ended: false, endedAt: null }, { merge: true });
         } catch (err) {
           console.error(err);
         }
@@ -451,12 +598,17 @@
           currentQuestion.textContent = '—';
           return;
         }
+        const ended = !!snap.data().ended;
+        if (ended) {
+          currentQuestion.textContent = 'Terminado';
+          finalReport.classList.remove('hidden');
+        }
         const idx = snap.data().currentQuestionIndex;
         currentQuestionIndex = typeof idx === 'number' ? idx : -1;
         if (typeof idx === 'number' && idx >= 0) {
           currentQuestion.textContent = `#${idx + 1}`;
         } else {
-          currentQuestion.textContent = 'No iniciada';
+          if (!ended) currentQuestion.textContent = 'No iniciada';
         }
 
         listenAnswersForQuestion(currentQuestionIndex);
@@ -505,8 +657,11 @@
         if (gameDoc.exists() && typeof gameDoc.data().currentQuestionIndex !== 'undefined') {
           nextIndex = gameDoc.data().currentQuestionIndex + 1;
         }
-        if (nextIndex >= preguntas.length) nextIndex = 0;
-        await setDoc(gameRef, { currentQuestionIndex: nextIndex, questionStartedAt: serverTimestamp() }, { merge: true });
+        if (nextIndex >= preguntas.length) {
+          await finishGame();
+          return;
+        }
+        await setDoc(gameRef, { ended: false, endedAt: null, currentQuestionIndex: nextIndex, questionStartedAt: serverTimestamp() }, { merge: true });
         setStatus('Pregunta actualizada.');
       } catch (err) {
         console.error(err);
@@ -514,11 +669,13 @@
       }
     });
 
+    btnEndGame.addEventListener('click', finishGame);
+
     btnResetGame.addEventListener('click', async () => {
       if (!confirm('¿Reiniciar el juego? Esto pone la pregunta en estado no iniciado.')) return;
       setStatus('Reiniciando juego...');
       try {
-        await setDoc(gameRef, { currentQuestionIndex: -1, questionStartedAt: null }, { merge: true });
+        await setDoc(gameRef, { ended: false, endedAt: null, currentQuestionIndex: -1, questionStartedAt: null }, { merge: true });
         setStatus('Juego reiniciado.');
       } catch (err) {
         console.error(err);
