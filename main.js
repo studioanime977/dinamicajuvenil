@@ -174,6 +174,8 @@ let currentQuestionIndex = -1;
 let questionStartedAtMs = null;
 let timerIntervalId = null;
 const QUESTION_DURATION_SECONDS = 30;
+let lastTimerQuestionIndex = null;
+let lastTimerStartedAtMs = null;
 
 function stopTimer() {
   if (timerIntervalId) {
@@ -250,18 +252,36 @@ onSnapshot(gameRef, (docSnap) => {
       questionIndex < preguntas.length
     ) {
       currentQuestionIndex = questionIndex;
-      startTimer(startedAtMs);
+
+      // Si el líder/admin no tiene questionStartedAt (o aún no se propagó), usamos fallback local
+      // para que SIEMPRE haya cuenta regresiva visible.
+      let effectiveStartedAtMs = startedAtMs;
+      if (typeof effectiveStartedAtMs !== 'number' && lastTimerQuestionIndex !== questionIndex) {
+        effectiveStartedAtMs = Date.now();
+      }
+
+      // No reiniciar el temporizador en cada snapshot; solo si cambia pregunta o start time
+      if (lastTimerQuestionIndex !== questionIndex || lastTimerStartedAtMs !== effectiveStartedAtMs) {
+        startTimer(effectiveStartedAtMs);
+        lastTimerQuestionIndex = questionIndex;
+        lastTimerStartedAtMs = effectiveStartedAtMs;
+      }
+
       displayQuestion(preguntas[questionIndex]);
       answeredCurrentQuestion = false; // Resetear para la nueva pregunta
     } else {
       currentQuestionIndex = -1;
-      startTimer(null);
+      lastTimerQuestionIndex = null;
+      lastTimerStartedAtMs = null;
+      stopTimer();
       questionDisplay.innerText = "Esperando que el líder inicie el juego...";
       optionsContainer.innerHTML = '';
     }
   } else {
     currentQuestionIndex = -1;
-    startTimer(null);
+    lastTimerQuestionIndex = null;
+    lastTimerStartedAtMs = null;
+    stopTimer();
     // El líder aún no ha creado el documento del juego
     questionDisplay.innerText = "El juego aún no ha comenzado.";
   }
@@ -272,7 +292,9 @@ onSnapshot(gameRef, (docSnap) => {
   } else {
     statusDisplay.innerText = 'Error escuchando el estado del juego.';
   }
-  startTimer(null);
+  lastTimerQuestionIndex = null;
+  lastTimerStartedAtMs = null;
+  stopTimer();
 });
 
 // 3. Mostrar la pregunta y las opciones
