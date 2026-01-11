@@ -7,7 +7,7 @@
 // 📦 IMPORTACIONES DE FIREBASE
 // -----------------------------------------------------------------------------------------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // -----------------------------------------------------------------------------------------------
 // ⚙️ CONFIGURACIÓN DE FIREBASE
@@ -66,7 +66,7 @@ nextQuestionButton.addEventListener('click', async () => {
   // Aquí podrías añadir un límite para que no se pase del total de preguntas.
   // Por ahora, simplemente actualiza el índice.
   try {
-    await setDoc(gameRef, { currentQuestionIndex: nextIndex }, { merge: true });
+    await setDoc(gameRef, { currentQuestionIndex: nextIndex, questionStartedAt: serverTimestamp() }, { merge: true });
   } catch (err) {
     console.error(err);
     questionStatusDisplay.textContent = 'No se pudo avanzar la pregunta (posible error de permisos en Firestore).';
@@ -82,7 +82,7 @@ resetGameButton.addEventListener('click', async () => {
   const gameRef = doc(db, `games/${GAME_ID}`);
   // Esto regresa el juego al estado inicial donde los jugadores esperan al líder.
   try {
-    await setDoc(gameRef, { currentQuestionIndex: -1 });
+    await setDoc(gameRef, { currentQuestionIndex: -1, questionStartedAt: null }, { merge: true });
   } catch (err) {
     console.error(err);
     questionStatusDisplay.textContent = 'No se pudo reiniciar (posible error de permisos en Firestore).';

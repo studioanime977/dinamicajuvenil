@@ -165,11 +165,50 @@ const questionDisplay = document.getElementById('question');
 const optionsContainer = document.getElementById('options-container'); // Contenedor para botones
 const leaderboard = document.getElementById('leaderboard');
 const statusDisplay = document.getElementById('status');
+const timerDisplay = document.getElementById('timer-display');
 
 let currentTeamName = null;
 const GAME_ID = "main-game";
 let answeredCurrentQuestion = false;
 let currentQuestionIndex = -1;
+let questionStartedAtMs = null;
+let timerIntervalId = null;
+const QUESTION_DURATION_SECONDS = 30;
+
+function stopTimer() {
+  if (timerIntervalId) {
+    clearInterval(timerIntervalId);
+    timerIntervalId = null;
+  }
+  if (timerDisplay) timerDisplay.textContent = '--';
+}
+
+function updateTimerUi() {
+  if (!timerDisplay) return;
+  if (typeof questionStartedAtMs !== 'number') {
+    timerDisplay.textContent = '--';
+    return;
+  }
+
+  const elapsedSeconds = Math.floor((Date.now() - questionStartedAtMs) / 1000);
+  const remaining = Math.max(0, QUESTION_DURATION_SECONDS - elapsedSeconds);
+  timerDisplay.textContent = `${remaining}s`;
+
+  if (remaining <= 0) {
+    Array.from(optionsContainer.children).forEach((btn) => {
+      btn.disabled = true;
+    });
+  }
+}
+
+function startTimer(startMs) {
+  questionStartedAtMs = typeof startMs === 'number' ? startMs : null;
+  stopTimer();
+  updateTimerUi();
+  if (typeof questionStartedAtMs === 'number') {
+    timerIntervalId = setInterval(updateTimerUi, 250);
+  }
+}
 
 // -----------------------------------------------------------------------------------------------
 // 🕹️ LÓGICA DEL JUEGO
@@ -202,6 +241,8 @@ onSnapshot(gameRef, (docSnap) => {
   if (docSnap.exists()) {
     const gameData = docSnap.data();
     const questionIndex = gameData.currentQuestionIndex;
+    const startedAt = gameData.questionStartedAt;
+    const startedAtMs = startedAt && typeof startedAt.toMillis === 'function' ? startedAt.toMillis() : null;
 
     if (
       typeof questionIndex !== 'undefined' &&
@@ -209,15 +250,18 @@ onSnapshot(gameRef, (docSnap) => {
       questionIndex < preguntas.length
     ) {
       currentQuestionIndex = questionIndex;
+      startTimer(startedAtMs);
       displayQuestion(preguntas[questionIndex]);
       answeredCurrentQuestion = false; // Resetear para la nueva pregunta
     } else {
       currentQuestionIndex = -1;
+      startTimer(null);
       questionDisplay.innerText = "Esperando que el líder inicie el juego...";
       optionsContainer.innerHTML = '';
     }
   } else {
     currentQuestionIndex = -1;
+    startTimer(null);
     // El líder aún no ha creado el documento del juego
     questionDisplay.innerText = "El juego aún no ha comenzado.";
   }
@@ -228,6 +272,7 @@ onSnapshot(gameRef, (docSnap) => {
   } else {
     statusDisplay.innerText = 'Error escuchando el estado del juego.';
   }
+  startTimer(null);
 });
 
 // 3. Mostrar la pregunta y las opciones
@@ -249,6 +294,10 @@ async function handleAnswer(selectedIndex, correctIndex) {
   if (answeredCurrentQuestion) return; // Evitar respuestas múltiples
   if (!currentTeamName) return;
   if (currentQuestionIndex < 0 || currentQuestionIndex >= preguntas.length) return;
+  if (typeof questionStartedAtMs === 'number') {
+    const elapsedSeconds = Math.floor((Date.now() - questionStartedAtMs) / 1000);
+    if (elapsedSeconds >= QUESTION_DURATION_SECONDS) return;
+  }
   answeredCurrentQuestion = true;
 
   const isCorrect = selectedIndex === correctIndex;
@@ -314,7 +363,7 @@ onSnapshot(teamsQuery, (snapshot) => {
 
 // 6. Penalización por anti-trampa
 document.addEventListener('visibilitychange', async () => {
-  if (document.hidden && currentTeamName) {
+  if (document.hidden && currentTeamName && currentQuestionIndex >= 0) {
     const teamRef = doc(db, `games/${GAME_ID}/teams`, currentTeamName);
     try {
       await updateDoc(teamRef, {

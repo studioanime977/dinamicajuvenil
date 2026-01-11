@@ -103,7 +103,8 @@
       onSnapshot,
       where,
       getDocs,
-      writeBatch
+      writeBatch,
+      serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -500,7 +501,7 @@
           nextIndex = gameDoc.data().currentQuestionIndex + 1;
         }
         if (nextIndex >= preguntas.length) nextIndex = 0;
-        await setDoc(gameRef, { currentQuestionIndex: nextIndex }, { merge: true });
+        await setDoc(gameRef, { currentQuestionIndex: nextIndex, questionStartedAt: serverTimestamp() }, { merge: true });
         setStatus('Pregunta actualizada.');
       } catch (err) {
         console.error(err);
@@ -512,7 +513,7 @@
       if (!confirm('¿Reiniciar el juego? Esto pone la pregunta en estado no iniciado.')) return;
       setStatus('Reiniciando juego...');
       try {
-        await setDoc(gameRef, { currentQuestionIndex: -1 }, { merge: true });
+        await setDoc(gameRef, { currentQuestionIndex: -1, questionStartedAt: null }, { merge: true });
         setStatus('Juego reiniciado.');
       } catch (err) {
         console.error(err);
