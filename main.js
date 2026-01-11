@@ -176,12 +176,19 @@ let timerIntervalId = null;
 const QUESTION_DURATION_SECONDS = 30;
 let lastTimerQuestionIndex = null;
 let lastTimerStartedAtMs = null;
+let timeoutPenalizedQuestionIndex = null;
+const TIMEOUT_POINTS_PENALTY = -1;
 
 function stopTimer() {
   if (timerIntervalId) {
     clearInterval(timerIntervalId);
     timerIntervalId = null;
   }
+}
+
+function resetTimerState() {
+  stopTimer();
+  questionStartedAtMs = null;
   if (timerDisplay) timerDisplay.textContent = '--';
 }
 
@@ -200,6 +207,24 @@ function updateTimerUi() {
     Array.from(optionsContainer.children).forEach((btn) => {
       btn.disabled = true;
     });
+
+    // Penalización por no responder a tiempo (solo una vez por pregunta)
+    if (
+      currentTeamName &&
+      currentQuestionIndex >= 0 &&
+      !answeredCurrentQuestion &&
+      timeoutPenalizedQuestionIndex !== currentQuestionIndex
+    ) {
+      timeoutPenalizedQuestionIndex = currentQuestionIndex;
+      const teamRef = doc(db, `games/${GAME_ID}/teams`, currentTeamName);
+      updateDoc(teamRef, {
+        points: increment(TIMEOUT_POINTS_PENALTY),
+        penalties: increment(1)
+      }).catch((err) => console.error(err));
+    }
+
+    // Detener el temporizador cuando se acaba el tiempo
+    stopTimer();
   }
 }
 
@@ -246,25 +271,21 @@ onSnapshot(gameRef, (docSnap) => {
     const startedAt = gameData.questionStartedAt;
     const startedAtMs = startedAt && typeof startedAt.toMillis === 'function' ? startedAt.toMillis() : null;
 
+    // Solo se considera "iniciada" si el admin/la líder puso el índice Y un timestamp de inicio.
     if (
       typeof questionIndex !== 'undefined' &&
       questionIndex >= 0 &&
-      questionIndex < preguntas.length
+      questionIndex < preguntas.length &&
+      typeof startedAtMs === 'number'
     ) {
       currentQuestionIndex = questionIndex;
 
-      // Si el líder/admin no tiene questionStartedAt (o aún no se propagó), usamos fallback local
-      // para que SIEMPRE haya cuenta regresiva visible.
-      let effectiveStartedAtMs = startedAtMs;
-      if (typeof effectiveStartedAtMs !== 'number' && lastTimerQuestionIndex !== questionIndex) {
-        effectiveStartedAtMs = Date.now();
-      }
-
       // No reiniciar el temporizador en cada snapshot; solo si cambia pregunta o start time
-      if (lastTimerQuestionIndex !== questionIndex || lastTimerStartedAtMs !== effectiveStartedAtMs) {
-        startTimer(effectiveStartedAtMs);
+      if (lastTimerQuestionIndex !== questionIndex || lastTimerStartedAtMs !== startedAtMs) {
+        startTimer(startedAtMs);
         lastTimerQuestionIndex = questionIndex;
-        lastTimerStartedAtMs = effectiveStartedAtMs;
+        lastTimerStartedAtMs = startedAtMs;
+        timeoutPenalizedQuestionIndex = null;
       }
 
       displayQuestion(preguntas[questionIndex]);
@@ -273,7 +294,8 @@ onSnapshot(gameRef, (docSnap) => {
       currentQuestionIndex = -1;
       lastTimerQuestionIndex = null;
       lastTimerStartedAtMs = null;
-      stopTimer();
+      timeoutPenalizedQuestionIndex = null;
+      resetTimerState();
       questionDisplay.innerText = "Esperando que el líder inicie el juego...";
       optionsContainer.innerHTML = '';
     }
@@ -281,7 +303,8 @@ onSnapshot(gameRef, (docSnap) => {
     currentQuestionIndex = -1;
     lastTimerQuestionIndex = null;
     lastTimerStartedAtMs = null;
-    stopTimer();
+    timeoutPenalizedQuestionIndex = null;
+    resetTimerState();
     // El líder aún no ha creado el documento del juego
     questionDisplay.innerText = "El juego aún no ha comenzado.";
   }
@@ -294,7 +317,8 @@ onSnapshot(gameRef, (docSnap) => {
   }
   lastTimerQuestionIndex = null;
   lastTimerStartedAtMs = null;
-  stopTimer();
+  timeoutPenalizedQuestionIndex = null;
+  resetTimerState();
 });
 
 // 3. Mostrar la pregunta y las opciones
@@ -321,6 +345,9 @@ async function handleAnswer(selectedIndex, correctIndex) {
     if (elapsedSeconds >= QUESTION_DURATION_SECONDS) return;
   }
   answeredCurrentQuestion = true;
+
+  // Al responder, se detiene el temporizador hasta la siguiente pregunta
+  stopTimer();
 
   const isCorrect = selectedIndex === correctIndex;
   const pointsChange = isCorrect ? 2 : -1;
@@ -385,7 +412,13 @@ onSnapshot(teamsQuery, (snapshot) => {
 
 // 6. Penalización por anti-trampa
 document.addEventListener('visibilitychange', async () => {
-  if (document.hidden && currentTeamName && currentQuestionIndex >= 0) {
+  if (
+    document.hidden &&
+    currentTeamName &&
+    currentQuestionIndex >= 0 &&
+    typeof questionStartedAtMs === 'number' &&
+    !answeredCurrentQuestion
+  ) {
     const teamRef = doc(db, `games/${GAME_ID}/teams`, currentTeamName);
     try {
       await updateDoc(teamRef, {

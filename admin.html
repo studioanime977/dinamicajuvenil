@@ -429,6 +429,11 @@
       if (snap.exists() && snap.data().clave === claveIngresada) {
         panel.classList.remove('hidden');
         adminStatus.textContent = 'Acceso concedido.';
+        try {
+          await setDoc(gameRef, { currentQuestionIndex: -1, questionStartedAt: null }, { merge: true });
+        } catch (err) {
+          console.error(err);
+        }
         escuchar();
         renderQuestions();
       } else {
