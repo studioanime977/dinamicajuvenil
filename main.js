@@ -355,7 +355,13 @@ function displayQuestion(q) {
   opcionesBarajadas.forEach((obj) => {
     const button = document.createElement('button');
     button.innerText = obj.texto;
-    button.className = 'bg-[#0f0c05] text-gray-100 border border-amber-500/30 p-3 rounded-lg font-extrabold hover:bg-[#1a1409] hover:border-amber-400/60 focus:outline-none focus:ring-2 focus:ring-amber-400/60 transition-transform transform hover:scale-[1.02]';
+    button.className = 'w-full text-left p-4 rounded-xl border border-white/5 bg-white/5 hover:border-neonCyan hover:bg-neonCyan/5 hover:shadow-[0_0_20px_rgba(0,242,255,0.2)] transition-all duration-300 font-bold group relative overflow-hidden';
+
+    // Indicador táctil lateral
+    const bar = document.createElement('div');
+    bar.className = 'absolute left-0 top-0 bottom-0 w-1 bg-neonCyan opacity-0 group-hover:opacity-100 transition-opacity';
+    button.appendChild(bar);
+
     // Enviamos el índice original para que la validación sea correcta
     button.onclick = () => handleAnswer(obj.originalIndex, q.correcta);
     optionsContainer.appendChild(button);
@@ -397,27 +403,25 @@ async function handleAnswer(selectedIndex, correctIndex) {
     const explicacion = preguntas[currentQuestionIndex].explicacion;
     if (isCorrect) {
       statusDisplay.innerHTML = `
-        <div class="space-y-2">
-          <p class="text-emerald-400 font-bold">✅ ¡Correcto!</p>
-          <p class="text-[11px] text-gray-300 italic px-2">"${explicacion}"</p>
-          <p class="text-[10px] text-gray-500">Esperando a los demás grupos...</p>
+        <div class="space-y-2 animate-bounce">
+          <p class="text-neonCyan font-black tracking-widest uppercase text-sm drop-shadow-[0_0_10px_#00f2ff]">⚡ PUNTAJE ADQUIRIDO ⚡</p>
+          <p class="text-[11px] text-gray-400 italic px-2">"${explicacion}"</p>
         </div>
       `;
     } else {
       const respuestaCorrectaTexto = preguntas[currentQuestionIndex].opciones[correctIndex];
       statusDisplay.innerHTML = `
-        <div class="space-y-2">
-          <p class="text-rose-400 font-bold">❌ Incorrecto.</p>
-          <p class="text-xs text-amber-200">La respuesta era: <span class="font-bold underline">${respuestaCorrectaTexto}</span></p>
-          <p class="text-[11px] text-gray-300 border-l-2 border-amber-500/40 pl-2 py-1">¿Por qué? ${explicacion}</p>
-          <p class="text-[10px] text-gray-500 italic">Esperando a los demás grupos...</p>
+        <div class="space-y-3">
+          <p class="text-neonMagenta font-black tracking-widest uppercase text-sm drop-shadow-[0_0_10px_#ff00e5]">🛰️ ERROR DE CONEXIÓN</p>
+          <p class="text-xs text-white bg-neonMagenta/20 border border-neonMagenta/40 py-2 rounded-lg">La respuesta era: <span class="font-bold underline">${respuestaCorrectaTexto}</span></p>
+          <p class="text-[11px] text-gray-400 border-l-2 border-neonMagenta/40 pl-2 py-1">¿Por qué? ${explicacion}</p>
         </div>
       `;
     }
   } catch (err) {
     console.error(err);
     answeredCurrentQuestion = false;
-    statusDisplay.innerText = 'No se pudo guardar tu respuesta.';
+    statusDisplay.innerHTML = '<span class="text-neonMagenta animate-pulse font-bold tracking-widest uppercase text-[10px]">⚠️ TIEMPO AGOTADO - TRANSFERENCIA FALLIDA</span>';
     return;
   }
 
@@ -444,12 +448,28 @@ onSnapshot(teamsQuery, (snapshot) => {
     leaderboard.innerHTML = '<p class="text-gray-500">Esperando jugadores...</p>';
     return;
   }
-  snapshot.forEach(doc => {
+  const myTeamId = currentTeamName; // Asumiendo que currentTeamName es el ID del equipo actual
+  snapshot.forEach((doc, index) => {
     const team = doc.data();
-    const teamElement = document.createElement('div');
-    teamElement.className = 'flex justify-between items-center bg-[#0f0c05] border border-amber-500/20 p-3 rounded-lg';
-    teamElement.innerHTML = `<span class="font-extrabold text-amber-200">${team.name}</span><span class="font-extrabold text-xl text-yellow-500">${team.points} pts</span>`;
-    leaderboard.appendChild(teamElement);
+    const div = document.createElement('div');
+    div.className = 'flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 transition-all hover:bg-white/10 group';
+
+    const isMyTeam = (myTeamId && doc.id === myTeamId);
+    if (isMyTeam) {
+      div.className += ' border-neonCyan/40 bg-neonCyan/5 ring-1 ring-neonCyan/20';
+    }
+
+    div.innerHTML = `
+        <div class="flex items-center gap-3">
+          <span class="w-6 h-6 rounded-lg bg-black/40 flex items-center justify-center text-[10px] font-bold text-gray-500 group-hover:text-neonCyan transition-colors">${index + 1}</span>
+          <span class="font-bold ${isMyTeam ? 'text-neonCyan' : 'text-gray-200'}">${doc.id}</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <span class="text-xs font-black p-1 px-2 rounded-lg bg-black/40 text-gray-400">${data.points}</span>
+          <span class="text-[10px] text-gray-600 font-bold uppercase">pts</span>
+        </div>
+      `;
+    leaderboard.appendChild(div);
   });
 }, (err) => {
   console.error(err);

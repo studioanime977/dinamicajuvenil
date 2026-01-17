@@ -6,28 +6,55 @@
   <title>Panel del Líder</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            neonCyan: '#00f2ff',
+            neonMagenta: '#ff00e5',
+            neonPurple: '#bc13fe',
+            cyberDark: '#020205',
+          }
+        }
+      }
+    }
+  </script>
 </head>
 
-<body class="bg-gradient-to-br from-[#0f0f0f] via-[#241a06] to-[#0a0a0a] min-h-screen text-gray-100 font-sans">
-  <div class="max-w-4xl mx-auto p-4 sm:p-8">
-    <div
-      class="bg-[#1a1409]/80 backdrop-blur-xl border border-amber-500/20 shadow-[0_0_50px_rgba(212,175,55,0.12)] rounded-2xl p-6">
-      <h2
-        class="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-500 to-orange-400">
-        👑 Panel Admin</h2>
-      <p class="text-gray-200/80 mt-2">Control automático y gestión del juego.</p>
+<body class="bg-cyberDark min-h-screen text-gray-100 font-sans relative overflow-x-hidden">
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-neonCyan/5 blur-[120px] rounded-full"></div>
+    <div class="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-neonMagenta/5 blur-[120px] rounded-full"></div>
+  </div>
 
-      <div class="mt-4 flex items-center gap-2">
-        <input type="checkbox" id="auto-advance" class="w-5 h-5 accent-amber-500">
-        <label for="auto-advance" class="text-amber-200 font-bold">Modo Avance Automático (Pasar pregunta al completar
-          respuestas)</label>
+  <div class="max-w-4xl mx-auto p-4 sm:p-8 relative z-10">
+    <div
+      class="bg-black/60 backdrop-blur-2xl border border-white/10 shadow-[0_0_50px_rgba(0,242,255,0.1)] rounded-3xl p-6 relative overflow-hidden">
+      <div
+        class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neonCyan to-transparent opacity-50">
+      </div>
+      <h2 class="text-3xl font-black italic tracking-tighter">
+        <span
+          class="text-transparent bg-clip-text bg-gradient-to-r from-neonCyan to-neonPurple drop-shadow-[0_0_10px_rgba(0,242,255,0.4)]">👑
+          PANEL CENTRAL</span>
+      </h2>
+      <p class="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-500 mt-1">Control de Red y Protocolos de
+        Juego</p>
+
+      <div class="mt-6 flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10 backdrop-blur-md">
+        <input type="checkbox" id="auto-advance" class="w-5 h-5 accent-neonCyan">
+        <label for="auto-advance"
+          class="text-xs font-bold uppercase tracking-widest text-gray-400 cursor-pointer hover:text-neonCyan transition-colors">Modo
+          Avance Automático</label>
       </div>
 
       <div class="mt-6 flex flex-col sm:flex-row gap-3">
-        <input type="password" id="clave" placeholder="Clave de admin"
-          class="w-full sm:flex-1 px-4 py-3 rounded-lg bg-[#0f0c05] border border-amber-500/30 focus:outline-none focus:ring-2 focus:ring-amber-400/70 text-gray-100 placeholder:text-gray-400">
+        <input type="password" id="clave" placeholder="Código de Acceso Admin"
+          class="w-full sm:flex-1 px-4 py-4 rounded-xl bg-white/5 border border-white/10 focus:border-neonCyan focus:ring-1 focus:ring-neonCyan/50 focus:outline-none transition-all duration-300 text-gray-100 placeholder:text-gray-600">
         <button id="btn-entrar"
-          class="px-5 py-3 rounded-lg bg-gradient-to-r from-amber-600 to-yellow-500 text-gray-900 font-extrabold">Entrar</button>
+          class="px-8 py-4 rounded-xl bg-neonCyan text-black font-black uppercase tracking-widest hover:bg-white hover:shadow-[0_0_20px_#00f2ff] transition-all active:scale-95">Ingresar</button>
       </div>
 
       <p id="admin-status" class="text-sm text-gray-200/80 mt-3"></p>
@@ -35,7 +62,8 @@
 
     <div id="panel" class="hidden mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div
-        class="lg:col-span-2 bg-[#0b1020]/80 backdrop-blur-xl border border-cyan-500/20 shadow-[0_0_50px_rgba(34,211,238,0.10)] rounded-2xl p-6">
+        class="lg:col-span-2 bg-black/60 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-3xl p-6 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-2 h-full bg-neonCyan/20"></div>
         <div class="flex items-center justify-between gap-4 flex-wrap">
           <h3 class="text-xl font-bold">Equipos</h3>
           <div class="flex gap-2 flex-wrap">
@@ -61,17 +89,18 @@
         </div>
 
         <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div class="bg-[#0f0c05] rounded-xl p-4 border border-amber-500/20">
-            <p class="text-gray-400 text-xs">Pregunta actual</p>
-            <p id="current-question" class="text-lg font-extrabold text-amber-300">—</p>
+          <div class="bg-white/5 rounded-2xl p-4 border border-white/5 backdrop-blur-md">
+            <p class="text-gray-500 text-[9px] uppercase tracking-widest font-black">Fase Actual</p>
+            <p id="current-question"
+              class="text-2xl font-black text-neonCyan drop-shadow-[0_0_5px_rgba(0,242,255,0.3)]">—</p>
           </div>
-          <div class="bg-[#0f0c05] rounded-xl p-4 border border-amber-500/20">
-            <p class="text-gray-400 text-xs">Equipos</p>
-            <p id="team-count" class="text-lg font-extrabold text-amber-300">0</p>
+          <div class="bg-white/5 rounded-2xl p-4 border border-white/5 backdrop-blur-md">
+            <p class="text-gray-500 text-[9px] uppercase tracking-widest font-black">Nodos Activos</p>
+            <p id="team-count" class="text-2xl font-black text-neonCyan drop-shadow-[0_0_5px_rgba(0,242,255,0.3)]">0</p>
           </div>
-          <div class="bg-[#0f0c05] rounded-xl p-4 border border-amber-500/20">
-            <p class="text-gray-400 text-xs">Estado</p>
-            <p id="panel-status" class="text-sm text-gray-200">Listo</p>
+          <div class="bg-white/5 rounded-2xl p-4 border border-white/5 backdrop-blur-md">
+            <p class="text-gray-500 text-[9px] uppercase tracking-widest font-black">Estatus Red</p>
+            <p id="panel-status" class="text-xs font-bold text-gray-300 uppercase mt-1">Standby</p>
           </div>
         </div>
 
@@ -132,10 +161,14 @@
       </div>
 
       <div
-        class="bg-[#0b1020]/80 backdrop-blur-xl border border-cyan-500/20 shadow-[0_0_50px_rgba(34,211,238,0.10)] rounded-2xl p-6">
-        <h3 class="text-xl font-bold">Preguntas (respuestas ocultas)</h3>
-        <p class="text-gray-300 text-sm mt-2">Toca el 👁️ para ver/ocultar la respuesta correcta.</p>
-        <div id="questions" class="mt-4 space-y-3"></div>
+        class="bg-black/60 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-3xl p-6 relative overflow-hidden h-fit">
+        <h3 class="text-xs font-black uppercase tracking-[0.2em] text-neonPurple/80 mb-4 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-neonPurple shadow-[0_0_10px_#bc13fe]"></span>
+          Base de Datos
+        </h3>
+        <p class="text-[10px] text-gray-500 mb-6 italic leading-relaxed">Protocolos de verificación y base teológica.
+        </p>
+        <div id="questions" class="mt-4 space-y-3 custom-scrollbar overflow-y-auto max-h-[600px]"></div>
       </div>
     </div>
   </div>
@@ -333,37 +366,37 @@
 
     function renderFinalRow({ teamId, points, correct, wrong, timeout, knowledgePercent }) {
       const tr = document.createElement('tr');
-      tr.className = 'bg-gray-900 border border-gray-700';
+      tr.className = 'bg-white/5 border border-white/5 transition-all hover:bg-white/10';
 
       const tdTeam = document.createElement('td');
-      tdTeam.className = 'px-4 py-3 rounded-l-xl font-bold';
+      tdTeam.className = 'px-4 py-4 rounded-l-2xl font-bold text-sm';
       tdTeam.textContent = teamId;
 
       const tdPoints = document.createElement('td');
-      tdPoints.className = 'px-4 py-3 font-extrabold text-indigo-300';
+      tdPoints.className = 'px-4 py-4 font-black text-neonCyan drop-shadow-[0_0_5px_rgba(0,242,255,0.3)]';
       tdPoints.textContent = String(points ?? 0);
 
       const tdC = document.createElement('td');
-      tdC.className = 'px-4 py-3 text-green-300 font-bold';
-      tdC.textContent = String(correct);
+      tdC.className = 'px-4 py-4 text-emerald-400 font-bold';
+      tdC.innerHTML = `<span class="bg-emerald-500/10 px-2 py-1 rounded-lg">${correct}</span>`;
 
       const tdW = document.createElement('td');
-      tdW.className = 'px-4 py-3 text-red-300 font-bold';
-      tdW.textContent = String(wrong);
+      tdW.className = 'px-4 py-4 text-rose-400 font-bold';
+      tdW.innerHTML = `<span class="bg-rose-500/10 px-2 py-1 rounded-lg">${wrong}</span>`;
 
       const tdT = document.createElement('td');
-      tdT.className = 'px-4 py-3 text-yellow-300 font-bold';
-      tdT.textContent = String(timeout);
+      tdT.className = 'px-4 py-4 text-orange-400 font-bold';
+      tdT.innerHTML = `<span class="bg-orange-500/10 px-2 py-1 rounded-lg">${timeout}</span>`;
 
       const tdP = document.createElement('td');
-      tdP.className = 'px-4 py-3 font-extrabold';
+      tdP.className = 'px-4 py-4 font-black text-gray-300';
       tdP.textContent = `${knowledgePercent}%`;
 
       const tdAction = document.createElement('td');
-      tdAction.className = 'px-4 py-3 rounded-r-xl';
+      tdAction.className = 'px-4 py-4 rounded-r-2xl';
       const btn = document.createElement('button');
-      btn.innerText = 'Ver Detalles';
-      btn.className = 'text-xs bg-amber-600 hover:bg-amber-500 text-gray-900 font-bold py-1 px-3 rounded-lg transition';
+      btn.innerText = 'DETALLES';
+      btn.className = 'text-[9px] font-black tracking-widest bg-white/5 hover:bg-white/10 border border-white/10 hover:border-neonCyan hover:text-neonCyan px-3 py-2 rounded-xl transition-all';
       btn.onclick = () => verDetalleEquipo(teamId);
       tdAction.appendChild(btn);
 
@@ -458,10 +491,10 @@
     function renderAnswersEmpty(message) {
       answersTable.innerHTML = '';
       const tr = document.createElement('tr');
-      tr.className = 'bg-gray-900 border border-gray-700';
+      tr.className = 'bg-white/5 border border-white/5';
       const td = document.createElement('td');
       td.colSpan = 4;
-      td.className = 'px-4 py-3 rounded-xl text-gray-300';
+      td.className = 'px-4 py-6 rounded-2xl text-gray-500 text-xs text-center italic tracking-widest';
       td.textContent = message;
       tr.appendChild(td);
       answersTable.appendChild(tr);
@@ -502,22 +535,22 @@
           const isCorrect = !!data.isCorrect;
 
           const tr = document.createElement('tr');
-          tr.className = 'bg-gray-900 border border-gray-700';
+          tr.className = 'bg-white/5 border border-white/5 hover:bg-white/10 transition-all';
 
           const tdTeam = document.createElement('td');
-          tdTeam.className = 'px-4 py-3 rounded-l-xl font-bold';
+          tdTeam.className = 'px-4 py-4 rounded-l-2xl font-bold text-sm';
           tdTeam.textContent = teamId;
 
           const tdSel = document.createElement('td');
-          tdSel.className = 'px-4 py-3';
+          tdSel.className = 'px-4 py-4 font-black';
           tdSel.textContent = selectedLetter;
 
           const tdCorrect = document.createElement('td');
-          tdCorrect.className = `px-4 py-3 font-bold ${isCorrect ? 'text-green-300' : 'text-red-300'}`;
+          tdCorrect.className = `px-4 py-4 font-black ${isCorrect ? 'text-neonCyan' : 'text-neonMagenta shadow-[inset_0_0_10px_rgba(255,0,229,0.1)]'}`;
           tdCorrect.textContent = correctLetter;
 
           const tdPoints = document.createElement('td');
-          tdPoints.className = 'px-4 py-3 rounded-r-xl';
+          tdPoints.className = 'px-4 py-4 rounded-r-2xl font-black text-gray-400';
           tdPoints.textContent = String(data.pointsChange ?? '—');
 
           tr.appendChild(tdTeam);
@@ -545,18 +578,18 @@
       questionsEl.innerHTML = '';
       preguntas.forEach((q, idx) => {
         const card = document.createElement('div');
-        card.className = 'bg-gray-900 border border-gray-700 rounded-xl p-4';
+        card.className = 'bg-white/5 border border-white/5 rounded-2xl p-5 hover:border-neonCyan/20 transition-all group';
 
         const header = document.createElement('div');
         header.className = 'flex items-start justify-between gap-3';
 
         const title = document.createElement('div');
-        title.className = 'font-bold';
-        title.textContent = `${idx + 1}. ${q.pregunta}`;
+        title.className = 'text-sm font-medium leading-relaxed group-hover:text-gray-100 transition-colors';
+        title.innerHTML = `<span class="text-neonCyan font-black mr-2">#${idx + 1}</span> ${q.pregunta}`;
 
         const toggleQuestion = document.createElement('button');
-        toggleQuestion.className = 'shrink-0 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 font-bold text-sm';
-        toggleQuestion.textContent = 'Mostrar';
+        toggleQuestion.className = 'shrink-0 text-[10px] font-black tracking-widest bg-white/5 border border-white/10 px-3 py-2 rounded-xl hover:bg-neonCyan hover:text-black transition-all';
+        toggleQuestion.textContent = 'LISTA';
 
         header.appendChild(title);
         header.appendChild(toggleQuestion);
@@ -666,21 +699,21 @@
         registeredTeamsCount = snap.size;
         teamCount.textContent = registeredTeamsCount;
         teamsTable.innerHTML = '';
-        snap.forEach((d) => {
+        snap.forEach((d, index) => {
           const team = d.data();
           const tr = document.createElement('tr');
-          tr.className = 'bg-gray-900 border border-gray-700';
+          tr.className = 'bg-white/5 border border-white/5 hover:bg-white/10 transition-all';
 
           const tdName = document.createElement('td');
-          tdName.className = 'px-4 py-3 rounded-l-xl font-bold';
-          tdName.textContent = team.name ?? d.id;
+          tdName.className = 'px-4 py-4 rounded-l-2xl font-bold text-sm';
+          tdName.innerHTML = `<span class="text-gray-600 mr-2 text-xs">#${index + 1}</span> ${team.name ?? d.id}`;
 
           const tdPoints = document.createElement('td');
-          tdPoints.className = 'px-4 py-3 font-extrabold text-indigo-300';
+          tdPoints.className = 'px-4 py-4 font-black text-neonCyan';
           tdPoints.textContent = String(team.points ?? 0);
 
           const tdPen = document.createElement('td');
-          tdPen.className = 'px-4 py-3 rounded-r-xl text-gray-200';
+          tdPen.className = 'px-4 py-4 rounded-r-2xl text-neonMagenta font-black';
           tdPen.textContent = String(team.penalties ?? 0);
 
           tr.appendChild(tdName);
@@ -755,29 +788,29 @@
         preguntas.forEach((q, idx) => {
           const ans = answersMap[idx];
           const div = document.createElement('div');
-          div.className = 'bg-[#0f0c05] border border-amber-500/10 p-3 rounded-lg text-sm';
+          div.className = 'bg-white/5 border border-white/5 p-4 rounded-2xl text-sm transition-all hover:bg-white/10';
 
           let estadoHtml = '';
           if (!ans) {
-            estadoHtml = '<span class="text-yellow-400 font-bold">[SIN RESPONDER]</span>';
+            estadoHtml = '<span class="text-gray-500 font-black tracking-widest text-[9px] uppercase">[DESCONECTADO]</span>';
           } else if (ans.timeout) {
-            estadoHtml = '<span class="text-orange-400 font-bold">[TIEMPO AGOTADO]</span>';
+            estadoHtml = '<span class="text-neonMagenta font-black tracking-widest text-[9px] uppercase">[TIMEOUT]</span>';
           } else if (ans.isCorrect) {
-            estadoHtml = '<span class="text-green-400 font-bold">[CORRECTO]</span>';
+            estadoHtml = '<span class="text-neonCyan font-black tracking-widest text-[9px] uppercase text-shadow-[0_0_10px_#00f2ff]">[CORRECTO]</span>';
           } else {
-            estadoHtml = '<span class="text-red-400 font-bold">[INCORRECTO]</span>';
+            estadoHtml = '<span class="text-rose-500 font-black tracking-widest text-[9px] uppercase">[ERROR]</span>';
           }
 
           const respuestaRecibida = ans ? (typeof ans.selectedIndex === 'number' ? q.opciones[ans.selectedIndex] : 'N/A') : 'N/A';
           const respuestaCorrecta = q.opciones[q.correcta];
 
           div.innerHTML = `
-            <p class="font-bold text-amber-200">${idx + 1}. ${q.pregunta}</p>
-            <div class="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              <p><span class="text-gray-400">Respuesta dada:</span> <span class="${ans?.isCorrect ? 'text-green-300' : 'text-red-300'}">${respuestaRecibida}</span></p>
-              <p><span class="text-gray-400">Respuesta correcta:</span> <span class="text-green-300">${respuestaCorrecta}</span></p>
+            <p class="font-bold text-gray-100 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-neonPurple"></span> ${idx + 1}. ${q.pregunta}</p>
+            <div class="mt-3 grid grid-cols-1 gap-2 text-xs">
+              <p class="bg-black/40 p-2 rounded-xl border border-white/5"><span class="text-gray-500 font-bold uppercase text-[9px] tracking-widest block mb-1">Recibido</span> <span class="${ans?.isCorrect ? 'text-neonCyan font-black' : 'text-rose-400'}">${respuestaRecibida}</span></p>
+              <p class="bg-black/40 p-2 rounded-xl border border-white/5"><span class="text-gray-500 font-bold uppercase text-[9px] tracking-widest block mb-1">Deseado</span> <span class="text-neonCyan font-black">${respuestaCorrecta}</span></p>
             </div>
-            <p class="mt-1 text-[10px] uppercase">${estadoHtml}</p>
+            <div class="mt-2 flex justify-end">${estadoHtml}</div>
           `;
           contenido.appendChild(div);
         });
