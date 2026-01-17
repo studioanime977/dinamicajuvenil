@@ -54,6 +54,9 @@
             <button id="btn-delete-teams"
               class="px-4 py-2 rounded-lg bg-rose-500 hover:bg-rose-400 text-gray-900 font-extrabold ring-2 ring-rose-300/30">Borrar
               equipos</button>
+            <button id="btn-clear-report"
+              class="px-4 py-2 rounded-lg bg-gray-500 hover:bg-gray-400 text-gray-900 font-extrabold ring-2 ring-gray-300/30">Limpiar
+              Reporte</button>
           </div>
         </div>
 
@@ -208,6 +211,7 @@
     const finalReportStatus = document.getElementById('final-report-status');
     const finalReportTable = document.getElementById('final-report-table');
     const autoAdvanceCheck = document.getElementById('auto-advance');
+    const btnClearReport = document.getElementById('btn-clear-report');
 
     let currentQuestionIndex = -1;
     let registeredTeamsCount = 0;
@@ -286,6 +290,36 @@
         opciones: ["Porque el amor es una emoción pasajera", "Porque te hace sentir superior a los que no aman", "Porque elimina la necesidad de tener una relación", "Porque te lleva a desear tanto a Dios que ya no quieres pecar"],
         correcta: 3,
         explicacion: "Cuando amamos a Dios sobre todas las cosas, nuestro deseo de agradarle supera nuestro deseo de satisfacernos a nosotros mismos o al pecado."
+      },
+      {
+        pregunta: "Según el texto, ¿por qué ya no necesitamos de intermediarios humanos para llegar al Padre?",
+        opciones: ["Porque Jesús nos dio acceso directo al trono de la gracia", "Porque ahora somos descendientes biológicos de Abraham", "Porque las piedras pueden convertirse en hijos", "Porque el servicio en el altar nos santifica"],
+        correcta: 0,
+        explicacion: "La muerte de Jesús rompió el velo. Depender de intermediarios humanos puede volver nuestra fe una tradición lejana en lugar de una relación viva."
+      },
+      {
+        pregunta: "¿Cuál es el punto de partida para que Dios transforme nuestra vida según la experiencia de 'rendirse'?",
+        opciones: ["Hacer mil cosas para llamar Su atención", "Reconocer que sin Él no somos nada y decir 'Heme aquí'", "Prepararse teológicamente como los hijos de Elí", "Forzar un encuentro espiritual a través del esfuerzo"],
+        correcta: 1,
+        explicacion: "No se trata de cuánto hagamos (Marta), sino de reconocer nuestra total dependencia y estar dispuestos a escuchar con humildad (Samuel)."
+      },
+      {
+        pregunta: "¿Por qué Jacob, siendo nieto de Abraham, necesitó ser quebrantado por Dios en Peniel?",
+        opciones: ["Para ganar la pelea contra el ángel", "Para que su fe dejara de ser heredada y tuviera un encuentro personal", "Para poder heredar las riquezas de su abuelo", "Porque Dios quería castigarlo por sus pecados pasados"],
+        correcta: 1,
+        explicacion: "Ser 'nieto' (heredar la fe) no basta. Jacob necesitaba su propio encuentro para que su identidad fuera transformada de suplantador a príncipe."
+      },
+      {
+        pregunta: "Según 1 Juan 4:18, ¿qué revela el hecho de que alguien sirva a Dios por miedo al castigo?",
+        opciones: ["Que es una persona muy obediente", "Que ha alcanzado el amor perfecto", "Que no ha experimentado plenamente el perfecto amor de Dios", "Que tiene una fe más sólida que los demás"],
+        correcta: 2,
+        explicacion: "El servicio por miedo es esclavitud. El amor perfecto expulsa el temor, llevándonos a servir por gratitud y no por terror a las consecuencias."
+      },
+      {
+        pregunta: "¿Qué significa realmente 'soltar el último ídolo' para alcanzar una vida de honra?",
+        opciones: ["Abandonar nuestra propia manera de vivir y lo que nos estanca", "Dejar de ir a la iglesia por un tiempo para pensar", "Tratar de ganar el mundo entero con méritos propios", "Aferrarnos a la vida para no perder la salvación"],
+        correcta: 0,
+        explicacion: "La honra requiere negarse a sí mismo (Mateo 16:24) y soltar aquello que, aunque nos guste, sabemos que impide nuestra entrega total a Cristo."
       }
     ];
 
@@ -692,6 +726,14 @@
       }
     }
 
+    function limpiarReporte() {
+      finalReport.classList.add('hidden');
+      finalReportTable.innerHTML = '';
+      setFinalReportStatus('');
+    }
+
+    btnClearReport.addEventListener('click', limpiarReporte);
+
     async function verDetalleEquipo(teamId) {
       const modal = document.getElementById('modal-detalle');
       const titulo = document.getElementById('modal-titulo');
@@ -795,6 +837,7 @@
         });
         await batch.commit();
         setStatus('Equipos borrados.');
+        limpiarReporte();
       } catch (err) {
         console.error(err);
         setStatus('No se pudo borrar equipos (posible error de permisos en Firestore).');
