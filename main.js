@@ -164,6 +164,7 @@ const TIMEOUT_POINTS_PENALTY = -5;
 const CORRECT_POINTS = 15;
 const WRONG_POINTS = -10;
 let gameEnded = false;
+let podiumDismissed = false;
 
 function stopTimer() {
   if (timerIntervalId) {
@@ -274,13 +275,17 @@ onSnapshot(gameRef, (docSnap) => {
       timeoutPenalizedQuestionIndex = null;
       resetTimerState();
 
-      gameSection.classList.add('hidden');
-      joinSection.classList.add('hidden');
-      resultsSection.classList.remove('hidden');
-
-      mostrarPodioFinal();
+      if (!podiumDismissed) {
+        gameSection.classList.add('hidden');
+        joinSection.classList.add('hidden');
+        resultsSection.classList.remove('hidden');
+        mostrarPodioFinal();
+      }
       return;
     }
+
+    // Si el juego NO ha terminado, reseteamos el descarte del podio para la próxima vez
+    podiumDismissed = false;
     const questionIndex = gameData.currentQuestionIndex;
     const startedAt = gameData.questionStartedAt;
     const startedAtMs = startedAt && typeof startedAt.toMillis === 'function' ? startedAt.toMillis() : null;
@@ -456,6 +461,57 @@ async function handleAnswer(selectedIndex, correctIndex) {
   });
 }
 
+window.volverAlInicio = () => {
+  podiumDismissed = true;
+  resultsSection.classList.add('hidden');
+  joinSection.classList.remove('hidden');
+  currentTeamName = null;
+  statusDisplay.innerHTML = '';
+};
+
+async function mostrarPodioFinal() {
+  podiumContainer.innerHTML = '<p class="text-center text-gray-500 animate-pulse text-[10px] tracking-widest uppercase">Escaneando red de ganadores...</p>';
+  try {
+    const teamsSnap = await getDocs(teamsQuery);
+    const sortedTeams = teamsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    podiumContainer.innerHTML = '';
+
+    // Top 3
+    sortedTeams.slice(0, 3).forEach((team, index) => {
+      const isWinner = index === 0;
+      const card = document.createElement('div');
+      card.className = `p-6 rounded-3xl border transition-all duration-700 ${isWinner
+          ? 'bg-neonCyan/10 border-neonCyan shadow-[0_0_30px_rgba(0,242,255,0.2)] scale-105 z-10'
+          : 'bg-white/5 border-white/10 opacity-80 scale-95'
+        } flex items-center justify-between relative overflow-hidden`;
+
+      if (isWinner) {
+        card.innerHTML += `<div class="absolute -top-1 -right-1 text-3xl rotate-12 drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]">👑</div>`;
+      }
+
+      card.innerHTML += `
+        <div class="flex items-center gap-4">
+          <span class="text-4xl font-black italic ${isWinner ? 'text-neonCyan' : 'text-gray-600'}">${index + 1}</span>
+          <div class="text-left">
+            <h3 class="font-black text-xl italic uppercase tracking-tighter ${isWinner ? 'text-white' : 'text-gray-400'}">${team.name || team.id}</h3>
+            <p class="text-[8px] font-bold text-gray-500 uppercase tracking-[0.2em]">Enlace Confirmado</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-2xl font-black ${isWinner ? 'text-neonCyan' : 'text-white'}">${team.points}</p>
+          <p class="text-[8px] font-bold text-gray-500 uppercase">Puntos Red</p>
+        </div>
+      `;
+      podiumContainer.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error(err);
+    podiumContainer.innerHTML = '<p class="text-[10px] text-neonMagenta text-center">⚠️ Error en la descarga del podio</p>';
+  }
+}
+
 // 5. Actualizar el marcador en tiempo real
 const teamsQuery = query(collection(db, `games/${GAME_ID}/teams`), orderBy('points', 'desc'));
 onSnapshot(teamsQuery, (snapshot) => {
@@ -481,7 +537,7 @@ onSnapshot(teamsQuery, (snapshot) => {
           <span class="font-bold ${isMyTeam ? 'text-neonCyan' : 'text-gray-200'}">${doc.id}</span>
         </div>
         <div class="flex items-center gap-1">
-          <span class="text-xs font-black p-1 px-2 rounded-lg bg-black/40 text-gray-400">${data.points}</span>
+          <span class="text-xs font-black p-1 px-2 rounded-lg bg-black/40 text-gray-400">${team.points}</span>
           <span class="text-[10px] text-gray-600 font-bold uppercase">pts</span>
         </div>
       `;
