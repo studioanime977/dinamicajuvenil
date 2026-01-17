@@ -166,6 +166,9 @@ const WRONG_POINTS = -10;
 let gameEnded = false;
 let podiumDismissed = false;
 
+// Consultas Globales
+const teamsQuery = query(collection(db, `games/${GAME_ID}/teams`), orderBy('points', 'desc'));
+
 function stopTimer() {
   if (timerIntervalId) {
     clearInterval(timerIntervalId);
@@ -289,6 +292,24 @@ onSnapshot(gameRef, (docSnap) => {
     const questionIndex = gameData.currentQuestionIndex;
     const startedAt = gameData.questionStartedAt;
     const startedAtMs = startedAt && typeof startedAt.toMillis === 'function' ? startedAt.toMillis() : null;
+
+    // Detectar Modo "Esperar Grupos" (Reset por el líder)
+    if (questionIndex === -1 && !gameEnded) {
+      currentQuestionIndex = -1;
+      lastTimerQuestionIndex = null;
+      lastTimerStartedAtMs = null;
+      timeoutPenalizedQuestionIndex = null;
+      resetTimerState();
+
+      // Forzar vuelta al registro
+      gameSection.classList.add('hidden');
+      resultsSection.classList.add('hidden');
+      joinSection.classList.remove('hidden');
+      currentTeamName = null;
+      teamNameInput.value = '';
+      statusDisplay.innerHTML = '<span class="text-neonCyan animate-pulse">SISTEMA REINICIADO - INGRESE NOMBRE</span>';
+      return;
+    }
 
     // Solo se considera "iniciada" si el admin/la líder puso el índice Y un timestamp de inicio.
     if (
@@ -473,6 +494,10 @@ async function mostrarPodioFinal() {
   podiumContainer.innerHTML = '<p class="text-center text-gray-500 animate-pulse text-[10px] tracking-widest uppercase">Escaneando red de ganadores...</p>';
   try {
     const teamsSnap = await getDocs(teamsQuery);
+    if (teamsSnap.empty) {
+      podiumContainer.innerHTML = '<p class="text-center text-gray-500 text-[10px] uppercase">No hay nodos registrados en la red</p>';
+      return;
+    }
     const sortedTeams = teamsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
     podiumContainer.innerHTML = '';
@@ -482,8 +507,8 @@ async function mostrarPodioFinal() {
       const isWinner = index === 0;
       const card = document.createElement('div');
       card.className = `p-6 rounded-3xl border transition-all duration-700 ${isWinner
-          ? 'bg-neonCyan/10 border-neonCyan shadow-[0_0_30px_rgba(0,242,255,0.2)] scale-105 z-10'
-          : 'bg-white/5 border-white/10 opacity-80 scale-95'
+        ? 'bg-neonCyan/10 border-neonCyan shadow-[0_0_30px_rgba(0,242,255,0.2)] scale-105 z-10'
+        : 'bg-white/5 border-white/10 opacity-80 scale-95'
         } flex items-center justify-between relative overflow-hidden`;
 
       if (isWinner) {
@@ -513,7 +538,6 @@ async function mostrarPodioFinal() {
 }
 
 // 5. Actualizar el marcador en tiempo real
-const teamsQuery = query(collection(db, `games/${GAME_ID}/teams`), orderBy('points', 'desc'));
 onSnapshot(teamsQuery, (snapshot) => {
   leaderboard.innerHTML = '';
   if (snapshot.empty) {

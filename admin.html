@@ -77,8 +77,11 @@
               class="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-extrabold ring-2 ring-cyan-300/30">Restablecer
               puntos</button>
             <button id="btn-reset-game"
-              class="px-4 py-2 rounded-lg bg-violet-500 hover:bg-violet-400 text-gray-900 font-extrabold ring-2 ring-violet-300/30">Reiniciar
-              juego</button>
+              class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold ring-2 ring-indigo-300/30">Reiniciar
+              Cuestionario</button>
+            <button id="btn-wait-groups"
+              class="px-4 py-2 rounded-lg bg-neonPurple hover:bg-fuchsia-500 text-black font-extrabold ring-2 ring-fuchsia-300/30">Esperar
+              Grupos</button>
             <button id="btn-delete-teams"
               class="px-4 py-2 rounded-lg bg-rose-500 hover:bg-rose-400 text-gray-900 font-extrabold ring-2 ring-rose-300/30">Borrar
               equipos</button>
@@ -236,6 +239,7 @@
     const btnResetPoints = document.getElementById('btn-reset-points');
     const btnDeleteTeams = document.getElementById('btn-delete-teams');
     const btnResetGame = document.getElementById('btn-reset-game');
+    const btnWaitGroups = document.getElementById('btn-wait-groups');
     const teamsTable = document.getElementById('teams-table');
     const answersTable = document.getElementById('answers-table');
     const teamCount = document.getElementById('team-count');
@@ -838,6 +842,18 @@
     btnNextQuestion.addEventListener('click', avanzarPregunta);
 
     btnEndGame.addEventListener('click', finishGame);
+
+    btnWaitGroups.addEventListener('click', async () => {
+      setStatus('Cambiando a modo espera...');
+      try {
+        await setDoc(gameRef, { ended: false, currentQuestionIndex: -1, questionStartedAt: null }, { merge: true });
+        limpiarReporte();
+        setStatus('Esperando grupos (Red Abierta).');
+      } catch (err) {
+        console.error(err);
+        setStatus('Error al cambiar a modo espera.');
+      }
+    });
 
     btnResetGame.addEventListener('click', async () => {
       if (!confirm('¿Reiniciar el juego? Esto pone la pregunta en estado no iniciado.')) return;
