@@ -13,12 +13,12 @@ import { getFirestore, doc, setDoc, onSnapshot, collection, query, orderBy, upda
 // ⚙️ CONFIGURACIÓN DE FIREBASE
 // -----------------------------------------------------------------------------------------------
 const firebaseConfig = {
-    apiKey: "AIzaSyC8xL6OM_ff7LqFJj_P87d9wVR-BT8OJsE",
-    authDomain: "dinamica-en-tiempo-real.firebaseapp.com",
-    projectId: "dinamica-en-tiempo-real",
-    storageBucket: "dinamica-en-tiempo-real.firebasestorage.app",
-    messagingSenderId: "1096669474654",
-    appId: "1:1096669474654:web:0348238823f2a0cbdea9cf"
+  apiKey: "AIzaSyC8xL6OM_ff7LqFJj_P87d9wVR-BT8OJsE",
+  authDomain: "dinamica-en-tiempo-real.firebaseapp.com",
+  projectId: "dinamica-en-tiempo-real",
+  storageBucket: "dinamica-en-tiempo-real.firebasestorage.app",
+  messagingSenderId: "1096669474654",
+  appId: "1:1096669474654:web:0348238823f2a0cbdea9cf"
 };
 
 // -----------------------------------------------------------------------------------------------
@@ -32,125 +32,64 @@ const db = getFirestore(app);
 // -----------------------------------------------------------------------------------------------
 const preguntas = [
   {
-    pregunta: "Según 1 Samuel 2:30, Dios promete honrar a:",
-    opciones: ["Los fuertes", "Los que lo honran", "Los que ayunan", "Los líderes"],
+    pregunta: "Según Lucas 3:8, ¿qué prueba que una persona se ha arrepentido de verdad y ha vuelto a Dios?",
+    opciones: ["Decir 'estamos a salvo por Abraham'", "Demostrarlo con su forma de vivir", "Pertenecer a una familia con linaje espiritual", "Realizar sacrificios y ofrendas"],
     correcta: 1
   },
   {
-    pregunta: "En la Biblia, honrar significa:",
-    opciones: ["Exaltar el ego", "Obedecer y respetar", "Ser famoso", "Tener autoridad"],
+    pregunta: "¿A qué se refiere el concepto de que 'Dios no tiene nietos'?",
+    opciones: ["A que Dios solo ama a sus hijos biológicos", "A que la fe no se hereda; cada uno necesita un encuentro personal", "A que los ancianos no pueden conocer a Dios de verdad", "A que la descendencia de Abraham fue un error"],
     correcta: 1
   },
   {
-    pregunta: "Honramos a Dios cuando:",
-    opciones: ["Hablamos bonito", "Vivimos en obediencia", "Solo vamos a la iglesia", "Cantamos fuerte"],
-    correcta: 1
-  },
-  {
-    pregunta: "Romanos 12:1 enseña que la honra se demuestra con:",
-    opciones: ["Sacrificios externos", "Nuestro cuerpo como sacrificio vivo", "Ofrendas económicas", "Ayunos largos"],
-    correcta: 1
-  },
-  {
-    pregunta: "Honrar a los padres trae como resultado:",
-    opciones: ["Fama", "Larga vida", "Riqueza inmediata", "Poder"],
-    correcta: 1
-  },
-  {
-    pregunta: "Proverbios 3:9 enseña honrar a Dios con:",
-    opciones: ["Palabras", "Tiempo", "Bienes", "Ayuno"],
+    pregunta: "En Lucas 10:41-42, ¿cuál fue la 'única cosa' necesaria que María descubrió y Marta ignoró?",
+    opciones: ["Servir con excelencia a los invitados", "La preocupación por los detalles del altar", "Estar en Su presencia y escuchar Su palabra", "Ayudar a los pobres de la aldea"],
     correcta: 2
   },
   {
-    pregunta: "Honrar a Dios incluye obedecer cuando:",
-    opciones: ["Es cómodo", "Es público", "Nadie ve", "Hay recompensa"],
-    correcta: 2
-  },
-  {
-    pregunta: "Honra verdadera se demuestra con:",
-    opciones: ["Intenciones", "Emociones", "Acciones", "Apariencia"],
-    correcta: 2
-  },
-  {
-    pregunta: "Juan 5:23 enseña que honrar al Hijo es:",
-    opciones: ["Opcional", "Igual a honrar al Padre", "Solo para líderes", "Algo simbólico"],
+    pregunta: "¿Qué sucede cuando el servicio a Dios carece de una relación personal?",
+    opciones: ["Se vuelve más eficiente por la disciplina", "Se convierte en rutina y la rutina en vacío", "Se santifica por el esfuerzo realizado", "Te garantiza un lugar en el cielo"],
     correcta: 1
   },
   {
-    pregunta: "Honrar a la familia implica:",
-    opciones: ["Palabras bonitas", "Responsabilidad y cuidado", "Control", "Autoridad"],
+    pregunta: "Según Efesios 2:8-9, ¿por qué razón ninguno de nosotros puede jactarse de ser salvo?",
+    opciones: ["Porque la salvación es un premio individual", "Porque la salvación es un regalo de Dios, no por méritos", "Porque el orgullo es un pecado menor", "Porque las obras buenas son opcionales"],
     correcta: 1
   },
   {
-    pregunta: "La honra produce:",
-    opciones: ["Orgullo", "Bendición", "Confusión", "Temor"],
+    pregunta: "En Génesis 32, ¿cuál fue el propósito real del quebrantamiento de Jacob al luchar con el ángel?",
+    opciones: ["Castigarlo por engañar a su hermano Esaú", "Transformar su identidad de 'suplantador' a Israel", "Demostrar que el ángel era más fuerte que él", "Quitarle sus riquezas acumuladas"],
     correcta: 1
   },
   {
-    pregunta: "La honra comienza primero en:",
-    opciones: ["La iglesia", "La sociedad", "El corazón", "El dinero"],
-    correcta: 2
-  },
-
-  {
-    pregunta: "La deshonra es:",
-    opciones: ["Falta de conocimiento", "Desobediencia y desprecio", "Ignorancia", "Debilidad"],
+    pregunta: "El 'Heme aquí' de Samuel, a diferencia de los hijos de Elí, representaba:",
+    opciones: ["Que él era el más preparado teológicamente", "Una actitud de obediencia radical y honra desde el corazón", "Que no tenía otros compromisos en el templo", "Una respuesta automática por miedo al castigo"],
     correcta: 1
   },
   {
-    pregunta: "Según Proverbios 11:2, la deshonra trae:",
-    opciones: ["Paz", "Prosperidad", "Humillación", "Autoridad"],
-    correcta: 2
-  },
-  {
-    pregunta: "Deshonrar a los padres provoca:",
-    opciones: ["Bendición", "Consecuencias negativas", "Fama", "Sabiduría"],
+    pregunta: "Según las notas, ¿cuál es la raíz común de todas las cosas 'disfrazadas de honra'?",
+    opciones: ["La falta de recursos económicos", "El orgullo disfrazado que se resiste a renunciar al 'yo'", "La falta de tiempo para orar", "La timidez de los creyentes"],
     correcta: 1
   },
   {
-    pregunta: "Malaquías 1:6 muestra deshonra cuando:",
-    opciones: ["Dios no responde", "Se da lo peor a Dios", "Se ora poco", "No se canta"],
+    pregunta: "Según Mateo 16:24, ¿cuál es el requisito indispensable para ser un seguidor de Jesús?",
+    opciones: ["Ganar el mundo entero primero", "Negarse a sí mismo, tomar su cruz y seguirlo", "Tener una reputación intachable en la sociedad", "Cumplir con todas las tradiciones heredadas"],
     correcta: 1
   },
   {
-    pregunta: "La deshonra se manifiesta cuando:",
-    opciones: ["Hay silencio", "Hay rebeldía", "Hay humildad", "Hay servicio"],
+    pregunta: "Basado en 1 Juan 4:18, quien aún tiene miedo al castigo demuestra que:",
+    opciones: ["Es una persona muy prudente", "No ha experimentado plenamente el perfecto amor de Dios", "Tiene un temor santo y necesario", "Está a un paso de la perfección"],
     correcta: 1
   },
   {
-    pregunta: "Según la Biblia, hablar mal de autoridades es:",
-    opciones: ["Libertad", "Opinión", "Deshonra", "Corrección"],
-    correcta: 2
-  },
-  {
-    pregunta: "La deshonra bloquea:",
-    opciones: ["El perdón", "La bendición", "El tiempo", "El conocimiento"],
+    pregunta: "¿Cuál es la diferencia fundamental entre los actos fingidos y los frutos del corazón?",
+    opciones: ["Los actos son siempre más visibles", "Los actos pueden fingirse, pero los frutos revelan el corazón real", "Los frutos solo aparecen en personas perfectas", "No hay diferencia si la intención es buena"],
     correcta: 1
   },
   {
-    pregunta: "Deshonrar a Dios ocurre cuando:",
-    opciones: ["No entendemos", "Vivimos en pecado consciente", "Oramos poco", "No ayunamos"],
+    pregunta: "¿Por qué el amor es descrito como el elemento que 'mata el orgullo'?",
+    opciones: ["Porque te hace sentir superior a los que no aman", "Porque te lleva a desear tanto a Dios que ya no quieres pecar", "Porque el amor es una emoción pasajera", "Porque elimina la necesidad de tener una relación"],
     correcta: 1
-  },
-  {
-    pregunta: "La deshonra produce:",
-    opciones: ["Orden", "Confianza", "Conflictos", "Gozo"],
-    correcta: 2
-  },
-  {
-    pregunta: "Ejemplo claro de deshonra es:",
-    opciones: ["Obedecer con gozo", "Servir con amor", "Menospreciar la autoridad", "Respetar normas"],
-    correcta: 2
-  },
-  {
-    pregunta: "La deshonra comienza cuando:",
-    opciones: ["Se habla", "Se piensa mal", "Se actúa", "Se decide obedecer"],
-    correcta: 1
-  },
-  {
-    pregunta: "El antídoto bíblico contra la deshonra es:",
-    opciones: ["El silencio", "El castigo", "El arrepentimiento y la obediencia", "El temor humano"],
-    correcta: 2
   }
 ];
 
@@ -178,7 +117,7 @@ let lastTimerQuestionIndex = null;
 let lastTimerStartedAtMs = null;
 let timeoutPenalizedQuestionIndex = null;
 const TIMEOUT_POINTS_PENALTY = -5;
-const CORRECT_POINTS = 10;
+const CORRECT_POINTS = 15;
 const WRONG_POINTS = -10;
 let gameEnded = false;
 
@@ -261,7 +200,7 @@ function startTimer(startMs) {
 joinButton.addEventListener('click', async () => {
   const teamName = teamNameInput.value.trim();
   if (!teamName) return alert('Por favor, ingresa el nombre de tu equipo.');
-  
+
   currentTeamName = teamName;
   const teamRef = doc(db, `games/${GAME_ID}/teams`, currentTeamName);
 
@@ -272,7 +211,7 @@ joinButton.addEventListener('click', async () => {
     statusDisplay.innerText = 'Error de permisos en Firestore. Revisa las reglas de Firestore (Missing or insufficient permissions).';
     return;
   }
-  
+
   joinSection.classList.add('hidden');
   gameSection.classList.remove('hidden');
   statusDisplay.innerText = `¡Equipo '${currentTeamName}' conectado!`;
@@ -358,7 +297,7 @@ function displayQuestion(q) {
   q.opciones.forEach((opcion, index) => {
     const button = document.createElement('button');
     button.innerText = opcion;
-    button.className = 'bg-[#070a16] text-gray-100 border border-cyan-500/30 p-3 rounded-lg font-extrabold hover:bg-[#0b1020] hover:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 transition-transform transform hover:scale-[1.02]';
+    button.className = 'bg-[#0f0c05] text-gray-100 border border-amber-500/30 p-3 rounded-lg font-extrabold hover:bg-[#1a1409] hover:border-amber-400/60 focus:outline-none focus:ring-2 focus:ring-amber-400/60 transition-transform transform hover:scale-[1.02]';
     button.onclick = () => handleAnswer(index, q.correcta);
     optionsContainer.appendChild(button);
   });
@@ -395,10 +334,11 @@ async function handleAnswer(selectedIndex, correctIndex) {
     });
     batch.update(teamRef, { points: increment(pointsChange) });
     await batch.commit();
+    statusDisplay.innerText = '✅ ¡Respuesta enviada! Esperando a los demás grupos...';
   } catch (err) {
     console.error(err);
     answeredCurrentQuestion = false;
-    statusDisplay.innerText = 'No se pudo guardar tu respuesta (posible error de permisos en Firestore).';
+    statusDisplay.innerText = 'No se pudo guardar tu respuesta.';
     return;
   }
 
@@ -428,8 +368,8 @@ onSnapshot(teamsQuery, (snapshot) => {
   snapshot.forEach(doc => {
     const team = doc.data();
     const teamElement = document.createElement('div');
-    teamElement.className = 'flex justify-between items-center bg-[#070a16] border border-cyan-500/20 p-3 rounded-lg';
-    teamElement.innerHTML = `<span class="font-extrabold text-cyan-200">${team.name}</span><span class="font-extrabold text-xl text-fuchsia-300">${team.points} pts</span>`;
+    teamElement.className = 'flex justify-between items-center bg-[#0f0c05] border border-amber-500/20 p-3 rounded-lg';
+    teamElement.innerHTML = `<span class="font-extrabold text-amber-200">${team.name}</span><span class="font-extrabold text-xl text-yellow-500">${team.points} pts</span>`;
     leaderboard.appendChild(teamElement);
   });
 }, (err) => {

@@ -1,48 +1,72 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Panel del Líder</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-[#050014] via-[#12002b] to-[#001a2e] min-h-screen text-gray-100 font-sans">
+
+<body class="bg-gradient-to-br from-[#0f0f0f] via-[#241a06] to-[#0a0a0a] min-h-screen text-gray-100 font-sans">
   <div class="max-w-4xl mx-auto p-4 sm:p-8">
-    <div class="bg-[#0b1020]/80 backdrop-blur-xl border border-cyan-500/20 shadow-[0_0_50px_rgba(34,211,238,0.12)] rounded-2xl p-6">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-fuchsia-400 to-violet-300">👑 Panel Admin</h2>
-      <p class="text-gray-200/80 mt-2">Control del juego y equipos.</p>
+    <div
+      class="bg-[#1a1409]/80 backdrop-blur-xl border border-amber-500/20 shadow-[0_0_50px_rgba(212,175,55,0.12)] rounded-2xl p-6">
+      <h2
+        class="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-500 to-orange-400">
+        👑 Panel Admin</h2>
+      <p class="text-gray-200/80 mt-2">Control automático y gestión del juego.</p>
+
+      <div class="mt-4 flex items-center gap-2">
+        <input type="checkbox" id="auto-advance" class="w-5 h-5 accent-amber-500">
+        <label for="auto-advance" class="text-amber-200 font-bold">Modo Avance Automático (Pasar pregunta al completar
+          respuestas)</label>
+      </div>
 
       <div class="mt-6 flex flex-col sm:flex-row gap-3">
-        <input id="clave" placeholder="Clave de admin" class="w-full sm:flex-1 px-4 py-3 rounded-lg bg-[#070a16] border border-cyan-500/30 focus:outline-none focus:ring-2 focus:ring-cyan-400/70 text-gray-100 placeholder:text-gray-400">
-        <button id="btn-entrar" class="px-5 py-3 rounded-lg bg-fuchsia-600 hover:bg-fuchsia-500 ring-2 ring-fuchsia-400/30 hover:ring-fuchsia-300/60 font-extrabold">Entrar</button>
+        <input id="clave" placeholder="Clave de admin"
+          class="w-full sm:flex-1 px-4 py-3 rounded-lg bg-[#0f0c05] border border-amber-500/30 focus:outline-none focus:ring-2 focus:ring-amber-400/70 text-gray-100 placeholder:text-gray-400">
+        <button id="btn-entrar"
+          class="px-5 py-3 rounded-lg bg-gradient-to-r from-amber-600 to-yellow-500 text-gray-900 font-extrabold">Entrar</button>
       </div>
 
       <p id="admin-status" class="text-sm text-gray-200/80 mt-3"></p>
     </div>
 
     <div id="panel" class="hidden mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2 bg-[#0b1020]/80 backdrop-blur-xl border border-cyan-500/20 shadow-[0_0_50px_rgba(34,211,238,0.10)] rounded-2xl p-6">
+      <div
+        class="lg:col-span-2 bg-[#0b1020]/80 backdrop-blur-xl border border-cyan-500/20 shadow-[0_0_50px_rgba(34,211,238,0.10)] rounded-2xl p-6">
         <div class="flex items-center justify-between gap-4 flex-wrap">
           <h3 class="text-xl font-bold">Equipos</h3>
           <div class="flex gap-2 flex-wrap">
-            <button id="btn-next-question" class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-gray-900 font-extrabold ring-2 ring-emerald-300/30">Siguiente Pregunta</button>
-            <button id="btn-end-game" class="px-4 py-2 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-extrabold ring-2 ring-yellow-200/30">Terminar juego</button>
-            <button id="btn-reset-points" class="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-extrabold ring-2 ring-cyan-300/30">Restablecer puntos</button>
-            <button id="btn-reset-game" class="px-4 py-2 rounded-lg bg-violet-500 hover:bg-violet-400 text-gray-900 font-extrabold ring-2 ring-violet-300/30">Reiniciar juego</button>
-            <button id="btn-delete-teams" class="px-4 py-2 rounded-lg bg-rose-500 hover:bg-rose-400 text-gray-900 font-extrabold ring-2 ring-rose-300/30">Borrar equipos</button>
+            <button id="btn-next-question"
+              class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-gray-900 font-extrabold ring-2 ring-emerald-300/30">Siguiente
+              Pregunta</button>
+            <button id="btn-end-game"
+              class="px-4 py-2 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-extrabold ring-2 ring-yellow-200/30">Terminar
+              juego</button>
+            <button id="btn-reset-points"
+              class="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-extrabold ring-2 ring-cyan-300/30">Restablecer
+              puntos</button>
+            <button id="btn-reset-game"
+              class="px-4 py-2 rounded-lg bg-violet-500 hover:bg-violet-400 text-gray-900 font-extrabold ring-2 ring-violet-300/30">Reiniciar
+              juego</button>
+            <button id="btn-delete-teams"
+              class="px-4 py-2 rounded-lg bg-rose-500 hover:bg-rose-400 text-gray-900 font-extrabold ring-2 ring-rose-300/30">Borrar
+              equipos</button>
           </div>
         </div>
 
         <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div class="bg-[#070a16] rounded-xl p-4 border border-cyan-500/20">
+          <div class="bg-[#0f0c05] rounded-xl p-4 border border-amber-500/20">
             <p class="text-gray-400 text-xs">Pregunta actual</p>
-            <p id="current-question" class="text-lg font-extrabold">—</p>
+            <p id="current-question" class="text-lg font-extrabold text-amber-300">—</p>
           </div>
-          <div class="bg-[#070a16] rounded-xl p-4 border border-cyan-500/20">
+          <div class="bg-[#0f0c05] rounded-xl p-4 border border-amber-500/20">
             <p class="text-gray-400 text-xs">Equipos</p>
-            <p id="team-count" class="text-lg font-extrabold">0</p>
+            <p id="team-count" class="text-lg font-extrabold text-amber-300">0</p>
           </div>
-          <div class="bg-[#070a16] rounded-xl p-4 border border-cyan-500/20">
+          <div class="bg-[#0f0c05] rounded-xl p-4 border border-amber-500/20">
             <p class="text-gray-400 text-xs">Estado</p>
             <p id="panel-status" class="text-sm text-gray-200">Listo</p>
           </div>
@@ -95,6 +119,7 @@
                   <th class="px-4">Malas</th>
                   <th class="px-4">Sin responder</th>
                   <th class="px-4">% Conocimiento</th>
+                  <th class="px-4">Acción</th>
                 </tr>
               </thead>
               <tbody id="final-report-table"></tbody>
@@ -103,10 +128,26 @@
         </div>
       </div>
 
-      <div class="bg-[#0b1020]/80 backdrop-blur-xl border border-cyan-500/20 shadow-[0_0_50px_rgba(34,211,238,0.10)] rounded-2xl p-6">
+      <div
+        class="bg-[#0b1020]/80 backdrop-blur-xl border border-cyan-500/20 shadow-[0_0_50px_rgba(34,211,238,0.10)] rounded-2xl p-6">
         <h3 class="text-xl font-bold">Preguntas (respuestas ocultas)</h3>
         <p class="text-gray-300 text-sm mt-2">Toca el 👁️ para ver/ocultar la respuesta correcta.</p>
         <div id="questions" class="mt-4 space-y-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Detalle de Respuestas -->
+  <div id="modal-detalle"
+    class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div
+      class="bg-[#1a1409] border border-amber-500/30 w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl p-6 shadow-2xl">
+      <div class="flex justify-between items-center mb-4 border-b border-amber-500/20 pb-2">
+        <h3 id="modal-titulo" class="text-xl font-bold text-amber-200">Detalle de Equipo</h3>
+        <button onclick="cerrarModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+      </div>
+      <div id="modal-contenido" class="space-y-4">
+        <!-- Detalles de respuestas aquí -->
       </div>
     </div>
   </div>
@@ -166,131 +207,73 @@
     const finalReport = document.getElementById('final-report');
     const finalReportStatus = document.getElementById('final-report-status');
     const finalReportTable = document.getElementById('final-report-table');
+    const autoAdvanceCheck = document.getElementById('auto-advance');
 
     let currentQuestionIndex = -1;
+    let registeredTeamsCount = 0;
     let unsubscribeAnswers = null;
+    let autoAdvanceCooldown = false;
 
     const preguntas = [
       {
-        pregunta: "Según 1 Samuel 2:30, Dios promete honrar a:",
-        opciones: ["Los fuertes", "Los que lo honran", "Los que ayunan", "Los líderes"],
+        pregunta: "Según Lucas 3:8, ¿qué prueba que una persona se ha arrepentido de verdad y ha vuelto a Dios?",
+        opciones: ["Decir 'estamos a salvo por Abraham'", "Demostrarlo con su forma de vivir", "Pertenecer a una familia con linaje espiritual", "Realizar sacrificios y ofrendas"],
         correcta: 1
       },
       {
-        pregunta: "En la Biblia, honrar significa:",
-        opciones: ["Exaltar el ego", "Obedecer y respetar", "Ser famoso", "Tener autoridad"],
+        pregunta: "¿A qué se refiere el concepto de que 'Dios no tiene nietos'?",
+        opciones: ["A que Dios solo ama a sus hijos biológicos", "A que la fe no se hereda; cada uno necesita un encuentro personal", "A que los ancianos no pueden conocer a Dios de verdad", "A que la descendencia de Abraham fue un error"],
         correcta: 1
       },
       {
-        pregunta: "Honramos a Dios cuando:",
-        opciones: ["Hablamos bonito", "Vivimos en obediencia", "Solo vamos a la iglesia", "Cantamos fuerte"],
-        correcta: 1
-      },
-      {
-        pregunta: "Romanos 12:1 enseña que la honra se demuestra con:",
-        opciones: ["Sacrificios externos", "Nuestro cuerpo como sacrificio vivo", "Ofrendas económicas", "Ayunos largos"],
-        correcta: 1
-      },
-      {
-        pregunta: "Honrar a los padres trae como resultado:",
-        opciones: ["Fama", "Larga vida", "Riqueza inmediata", "Poder"],
-        correcta: 1
-      },
-      {
-        pregunta: "Proverbios 3:9 enseña honrar a Dios con:",
-        opciones: ["Palabras", "Tiempo", "Bienes", "Ayuno"],
+        pregunta: "En Lucas 10:41-42, ¿cuál fue la 'única cosa' necesaria que María descubrió y Marta ignoró?",
+        opciones: ["Servir con excelencia a los invitados", "La preocupación por los detalles del altar", "Estar en Su presencia y escuchar Su palabra", "Ayudar a los pobres de la aldea"],
         correcta: 2
       },
       {
-        pregunta: "Honrar a Dios incluye obedecer cuando:",
-        opciones: ["Es cómodo", "Es público", "Nadie ve", "Hay recompensa"],
-        correcta: 2
-      },
-      {
-        pregunta: "Honra verdadera se demuestra con:",
-        opciones: ["Intenciones", "Emociones", "Acciones", "Apariencia"],
-        correcta: 2
-      },
-      {
-        pregunta: "Juan 5:23 enseña que honrar al Hijo es:",
-        opciones: ["Opcional", "Igual a honrar al Padre", "Solo para líderes", "Algo simbólico"],
+        pregunta: "¿Qué sucede cuando el servicio a Dios carece de una relación personal?",
+        opciones: ["Se vuelve más eficiente por la disciplina", "Se convierte en rutina y la rutina en vacío", "Se santifica por el esfuerzo realizado", "Te garantiza un lugar en el cielo"],
         correcta: 1
       },
       {
-        pregunta: "Honrar a la familia implica:",
-        opciones: ["Palabras bonitas", "Responsabilidad y cuidado", "Control", "Autoridad"],
+        pregunta: "Según Efesios 2:8-9, ¿por qué razón ninguno de nosotros puede jactarse de ser salvo?",
+        opciones: ["Porque la salvación es un premio individual", "Porque la salvación es un regalo de Dios, no por méritos", "Porque el orgullo es un pecado menor", "Porque las obras buenas son opcionales"],
         correcta: 1
       },
       {
-        pregunta: "La honra produce:",
-        opciones: ["Orgullo", "Bendición", "Confusión", "Temor"],
+        pregunta: "En Génesis 32, ¿cuál fue el propósito real del quebrantamiento de Jacob al luchar con el ángel?",
+        opciones: ["Castigarlo por engañar a su hermano Esaú", "Transformar su identidad de 'suplantador' a Israel", "Demostrar que el ángel era más fuerte que él", "Quitarle sus riquezas acumuladas"],
         correcta: 1
       },
       {
-        pregunta: "La honra comienza primero en:",
-        opciones: ["La iglesia", "La sociedad", "El corazón", "El dinero"],
-        correcta: 2
-      },
-
-      {
-        pregunta: "La deshonra es:",
-        opciones: ["Falta de conocimiento", "Desobediencia y desprecio", "Ignorancia", "Debilidad"],
+        pregunta: "El 'Heme aquí' de Samuel, a diferencia de los hijos de Elí, representaba:",
+        opciones: ["Que él era el más preparado teológicamente", "Una actitud de obediencia radical y honra desde el corazón", "Que no tenía otros compromisos en el templo", "Una respuesta automática por miedo al castigo"],
         correcta: 1
       },
       {
-        pregunta: "Según Proverbios 11:2, la deshonra trae:",
-        opciones: ["Paz", "Prosperidad", "Humillación", "Autoridad"],
-        correcta: 2
-      },
-      {
-        pregunta: "Deshonrar a los padres provoca:",
-        opciones: ["Bendición", "Consecuencias negativas", "Fama", "Sabiduría"],
+        pregunta: "Según las notas, ¿cuál es la raíz común de todas las cosas 'disfrazadas de honra'?",
+        opciones: ["La falta de recursos económicos", "El orgullo disfrazado que se resiste a renunciar al 'yo'", "La falta de tiempo para orar", "La timidez de los creyentes"],
         correcta: 1
       },
       {
-        pregunta: "Malaquías 1:6 muestra deshonra cuando:",
-        opciones: ["Dios no responde", "Se da lo peor a Dios", "Se ora poco", "No se canta"],
+        pregunta: "Según Mateo 16:24, ¿cuál es el requisito indispensable para ser un seguidor de Jesús?",
+        opciones: ["Ganar el mundo entero primero", "Negarse a sí mismo, tomar su cruz y seguirlo", "Tener una reputación intachable en la sociedad", "Cumplir con todas las tradiciones heredadas"],
         correcta: 1
       },
       {
-        pregunta: "La deshonra se manifiesta cuando:",
-        opciones: ["Hay silencio", "Hay rebeldía", "Hay humildad", "Hay servicio"],
+        pregunta: "Basado en 1 Juan 4:18, quien aún tiene miedo al castigo demuestra que:",
+        opciones: ["Es una persona muy prudente", "No ha experimentado plenamente el perfecto amor de Dios", "Tiene un temor santo y necesario", "Está a un paso de la perfección"],
         correcta: 1
       },
       {
-        pregunta: "Según la Biblia, hablar mal de autoridades es:",
-        opciones: ["Libertad", "Opinión", "Deshonra", "Corrección"],
-        correcta: 2
-      },
-      {
-        pregunta: "La deshonra bloquea:",
-        opciones: ["El perdón", "La bendición", "El tiempo", "El conocimiento"],
+        pregunta: "¿Cuál es la diferencia fundamental entre los actos fingidos y los frutos del corazón?",
+        opciones: ["Los actos son siempre más visibles", "Los actos pueden fingirse, pero los frutos revelan el corazón real", "Los frutos solo aparecen en personas perfectas", "No hay diferencia si la intención es buena"],
         correcta: 1
       },
       {
-        pregunta: "Deshonrar a Dios ocurre cuando:",
-        opciones: ["No entendemos", "Vivimos en pecado consciente", "Oramos poco", "No ayunamos"],
+        pregunta: "¿Por qué el amor es descrito como el elemento que 'mata el orgullo'?",
+        opciones: ["Porque te hace sentir superior a los que no aman", "Porque te lleva a desear tanto a Dios que ya no quieres pecar", "Porque el amor es una emoción pasajera", "Porque elimina la necesidad de tener una relación"],
         correcta: 1
-      },
-      {
-        pregunta: "La deshonra produce:",
-        opciones: ["Orden", "Confianza", "Conflictos", "Gozo"],
-        correcta: 2
-      },
-      {
-        pregunta: "Ejemplo claro de deshonra es:",
-        opciones: ["Obedecer con gozo", "Servir con amor", "Menospreciar la autoridad", "Respetar normas"],
-        correcta: 2
-      },
-      {
-        pregunta: "La deshonra comienza cuando:",
-        opciones: ["Se habla", "Se piensa mal", "Se actúa", "Se decide obedecer"],
-        correcta: 1
-      },
-      {
-        pregunta: "El antídoto bíblico contra la deshonra es:",
-        opciones: ["El silencio", "El castigo", "El arrepentimiento y la obediencia", "El temor humano"],
-        correcta: 2
       }
     ];
 
@@ -327,8 +310,16 @@
       tdT.textContent = String(timeout);
 
       const tdP = document.createElement('td');
-      tdP.className = 'px-4 py-3 rounded-r-xl font-extrabold';
+      tdP.className = 'px-4 py-3 font-extrabold';
       tdP.textContent = `${knowledgePercent}%`;
+
+      const tdAction = document.createElement('td');
+      tdAction.className = 'px-4 py-3 rounded-r-xl';
+      const btn = document.createElement('button');
+      btn.innerText = 'Ver Detalles';
+      btn.className = 'text-xs bg-amber-600 hover:bg-amber-500 text-gray-900 font-bold py-1 px-3 rounded-lg transition';
+      btn.onclick = () => verDetalleEquipo(teamId);
+      tdAction.appendChild(btn);
 
       tr.appendChild(tdTeam);
       tr.appendChild(tdPoints);
@@ -336,6 +327,7 @@
       tr.appendChild(tdW);
       tr.appendChild(tdT);
       tr.appendChild(tdP);
+      tr.appendChild(tdAction);
       finalReportTable.appendChild(tr);
     }
 
@@ -454,7 +446,9 @@
           return;
         }
 
+        let answersCount = 0;
         snap.forEach((d) => {
+          answersCount++;
           const data = d.data();
           const teamId = d.ref.parent?.parent?.id ?? '—';
           const selectedLetter = typeof data.selectedIndex === 'number' ? String.fromCharCode(65 + data.selectedIndex) : '—';
@@ -486,6 +480,11 @@
           tr.appendChild(tdPoints);
           answersTable.appendChild(tr);
         });
+
+        // Lógica de avance automático
+        if (autoAdvanceCheck.checked && !autoAdvanceCooldown && registeredTeamsCount > 0 && answersCount >= registeredTeamsCount) {
+          triggerAutoAdvance();
+        }
       }, (err) => {
         console.error(err);
         if (err?.code === 'permission-denied') {
@@ -618,7 +617,8 @@
       });
 
       onSnapshot(teamsQuery, (snap) => {
-        teamCount.textContent = snap.size;
+        registeredTeamsCount = snap.size;
+        teamCount.textContent = registeredTeamsCount;
         teamsTable.innerHTML = '';
         snap.forEach((d) => {
           const team = d.data();
@@ -649,7 +649,18 @@
       });
     }
 
-    btnNextQuestion.addEventListener('click', async () => {
+    async function triggerAutoAdvance() {
+      if (autoAdvanceCooldown) return;
+      autoAdvanceCooldown = true;
+      setStatus('⏱️ Avance automático en 3 segundos...');
+
+      setTimeout(async () => {
+        await avanzarPregunta();
+        autoAdvanceCooldown = false;
+      }, 3000);
+    }
+
+    async function avanzarPregunta() {
       setStatus('Avanzando pregunta...');
       try {
         const gameDoc = await getDoc(gameRef);
@@ -667,7 +678,9 @@
         console.error(err);
         setStatus('No se pudo avanzar (posible error de permisos en Firestore).');
       }
-    });
+    }
+
+    btnNextQuestion.addEventListener('click', avanzarPregunta);
 
     btnEndGame.addEventListener('click', finishGame);
 
@@ -718,4 +731,5 @@
     });
   </script>
 </body>
+
 </html>
