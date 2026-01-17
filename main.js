@@ -147,6 +147,8 @@ const optionsContainer = document.getElementById('options-container'); // Conten
 const leaderboard = document.getElementById('leaderboard');
 const statusDisplay = document.getElementById('status');
 const timerDisplay = document.getElementById('timer-display');
+const resultsSection = document.getElementById('results-section');
+const podiumContainer = document.getElementById('podium-container');
 
 let currentTeamName = null;
 const GAME_ID = "main-game";
@@ -271,8 +273,12 @@ onSnapshot(gameRef, (docSnap) => {
       lastTimerStartedAtMs = null;
       timeoutPenalizedQuestionIndex = null;
       resetTimerState();
-      questionDisplay.innerText = '✅ Juego terminado.';
-      optionsContainer.innerHTML = '';
+
+      gameSection.classList.add('hidden');
+      joinSection.classList.add('hidden');
+      resultsSection.classList.remove('hidden');
+
+      mostrarPodioFinal();
       return;
     }
     const questionIndex = gameData.currentQuestionIndex;
@@ -373,9 +379,12 @@ async function handleAnswer(selectedIndex, correctIndex) {
   if (answeredCurrentQuestion) return; // Evitar respuestas múltiples
   if (!currentTeamName) return;
   if (currentQuestionIndex < 0 || currentQuestionIndex >= preguntas.length) return;
+  let timeLeft = QUESTION_DURATION_SECONDS;
+  let timeSpent = 0;
   if (typeof questionStartedAtMs === 'number') {
-    const elapsedSeconds = Math.floor((Date.now() - questionStartedAtMs) / 1000);
-    if (elapsedSeconds >= QUESTION_DURATION_SECONDS) return;
+    timeSpent = Math.floor((Date.now() - questionStartedAtMs) / 1000);
+    timeLeft = QUESTION_DURATION_SECONDS - timeSpent;
+    if (timeSpent >= QUESTION_DURATION_SECONDS) return;
   }
   answeredCurrentQuestion = true;
 
@@ -383,7 +392,8 @@ async function handleAnswer(selectedIndex, correctIndex) {
   stopTimer();
 
   const isCorrect = selectedIndex === correctIndex;
-  const pointsChange = isCorrect ? CORRECT_POINTS : WRONG_POINTS;
+  const timeBonus = isCorrect ? Math.max(0, Math.floor(timeLeft / 2)) : 0;
+  const pointsChange = isCorrect ? (CORRECT_POINTS + timeBonus) : WRONG_POINTS;
   const teamRef = doc(db, `games/${GAME_ID}/teams`, currentTeamName);
   const answerRef = doc(db, `games/${GAME_ID}/teams/${currentTeamName}/answers`, String(currentQuestionIndex));
 
@@ -395,16 +405,22 @@ async function handleAnswer(selectedIndex, correctIndex) {
       correctIndex,
       isCorrect,
       pointsChange,
+      timeBonus,
+      timeSpent,
       answeredAt: serverTimestamp()
     });
-    batch.update(teamRef, { points: increment(pointsChange) });
+    batch.update(teamRef, {
+      points: increment(pointsChange),
+      totalTimeSpent: increment(timeSpent)
+    });
     await batch.commit();
 
     const explicacion = preguntas[currentQuestionIndex].explicacion;
     if (isCorrect) {
       statusDisplay.innerHTML = `
         <div class="space-y-2 animate-bounce">
-          <p class="text-neonCyan font-black tracking-widest uppercase text-sm drop-shadow-[0_0_10px_#00f2ff]">⚡ PUNTAJE ADQUIRIDO ⚡</p>
+          <p class="text-neonCyan font-black tracking-widest uppercase text-sm drop-shadow-[0_0_10px_#00f2ff]">⚡ PUNTAJE ADQUIRIDO: +${pointsChange} ⚡</p>
+          <p class="text-[9px] text-gray-500 font-bold uppercase mt-1">Bono por tiempo: +${timeBonus} | Restaban: ${timeLeft}s</p>
           <p class="text-[11px] text-gray-400 italic px-2">"${explicacion}"</p>
         </div>
       `;

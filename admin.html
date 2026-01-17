@@ -150,7 +150,8 @@
                   <th class="px-4">Buenas</th>
                   <th class="px-4">Malas</th>
                   <th class="px-4">Sin responder</th>
-                  <th class="px-4">% Conocimiento</th>
+                  <th class="px-4">% Eficiencia</th>
+                  <th class="px-4">Tiempo Prom.</th>
                   <th class="px-4">Acción</th>
                 </tr>
               </thead>
@@ -364,7 +365,7 @@
       finalReportStatus.textContent = text;
     }
 
-    function renderFinalRow({ teamId, points, correct, wrong, timeout, knowledgePercent }) {
+    function renderFinalRow({ teamId, points, correct, wrong, timeout, knowledgePercent, avgTime }) {
       const tr = document.createElement('tr');
       tr.className = 'bg-white/5 border border-white/5 transition-all hover:bg-white/10';
 
@@ -392,6 +393,10 @@
       tdP.className = 'px-4 py-4 font-black text-gray-300';
       tdP.textContent = `${knowledgePercent}%`;
 
+      const tdTime = document.createElement('td');
+      tdTime.className = 'px-4 py-4 font-black text-neonCyan/70 text-xs';
+      tdTime.textContent = `${avgTime}s`;
+
       const tdAction = document.createElement('td');
       tdAction.className = 'px-4 py-4 rounded-r-2xl';
       const btn = document.createElement('button');
@@ -406,6 +411,7 @@
       tr.appendChild(tdW);
       tr.appendChild(tdT);
       tr.appendChild(tdP);
+      tr.appendChild(tdTime);
       tr.appendChild(tdAction);
       finalReportTable.appendChild(tr);
     }
@@ -452,6 +458,8 @@
           });
 
           const knowledgePercent = totalQuestions > 0 ? Math.round((correct / totalQuestions) * 100) : 0;
+          const totalAnswered = correct + wrong;
+          const avgTime = totalAnswered > 0 ? (teamData.totalTimeSpent / totalAnswered).toFixed(1) : '0';
 
           renderFinalRow({
             teamId,
@@ -459,7 +467,8 @@
             correct,
             wrong,
             timeout,
-            knowledgePercent
+            knowledgePercent,
+            avgTime
           });
 
           // Guardar resumen en el doc del equipo para que quede persistente
