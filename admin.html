@@ -217,13 +217,13 @@
     const preguntas = [
       {
         pregunta: "Según Lucas 3:8, ¿qué prueba que una persona se ha arrepentido de verdad y ha vuelto a Dios?",
-        opciones: ["Decir 'estamos a salvo por Abraham'", "Demostrarlo con su forma de vivir", "Pertenecer a una familia con linaje espiritual", "Realizar sacrificios y ofrendas"],
+        opciones: ["Realizar sacrificios y ofrendas", "Demostrarlo con su forma de vivir", "Pertenecer a una familia con linaje espiritual", "Decir 'estamos a salvo por Abraham'"],
         correcta: 1
       },
       {
         pregunta: "¿A qué se refiere el concepto de que 'Dios no tiene nietos'?",
-        opciones: ["A que Dios solo ama a sus hijos biológicos", "A que la fe no se hereda; cada uno necesita un encuentro personal", "A que los ancianos no pueden conocer a Dios de verdad", "A que la descendencia de Abraham fue un error"],
-        correcta: 1
+        opciones: ["A que la fe no se hereda; cada uno necesita un encuentro personal", "A que Dios solo ama a sus hijos biológicos", "A que los ancianos no pueden conocer a Dios de verdad", "A que la descendencia de Abraham fue un error"],
+        correcta: 0
       },
       {
         pregunta: "En Lucas 10:41-42, ¿cuál fue la 'única cosa' necesaria que María descubrió y Marta ignoró?",
@@ -232,13 +232,13 @@
       },
       {
         pregunta: "¿Qué sucede cuando el servicio a Dios carece de una relación personal?",
-        opciones: ["Se vuelve más eficiente por la disciplina", "Se convierte en rutina y la rutina en vacío", "Se santifica por el esfuerzo realizado", "Te garantiza un lugar en el cielo"],
-        correcta: 1
+        opciones: ["Se santifica por el esfuerzo realizado", "Se vuelve más eficiente por la disciplina", "Te garantiza un lugar en el cielo", "Se convierte en rutina y la rutina en vacío"],
+        correcta: 3
       },
       {
         pregunta: "Según Efesios 2:8-9, ¿por qué razón ninguno de nosotros puede jactarse de ser salvo?",
-        opciones: ["Porque la salvación es un premio individual", "Porque la salvación es un regalo de Dios, no por méritos", "Porque el orgullo es un pecado menor", "Porque las obras buenas son opcionales"],
-        correcta: 1
+        opciones: ["Porque la salvación es un regalo de Dios, no por méritos", "Porque la salvación es un premio individual", "Porque el orgullo es un pecado menor", "Porque las obras buenas son opcionales"],
+        correcta: 0
       },
       {
         pregunta: "En Génesis 32, ¿cuál fue el propósito real del quebrantamiento de Jacob al luchar con el ángel?",
@@ -247,23 +247,23 @@
       },
       {
         pregunta: "El 'Heme aquí' de Samuel, a diferencia de los hijos de Elí, representaba:",
-        opciones: ["Que él era el más preparado teológicamente", "Una actitud de obediencia radical y honra desde el corazón", "Que no tenía otros compromisos en el templo", "Una respuesta automática por miedo al castigo"],
-        correcta: 1
+        opciones: ["Que él era el más preparado teológicamente", "Que no tenía otros compromisos en el templo", "Una respuesta automática por miedo al castigo", "Una actitud de obediencia radical y honra desde el corazón"],
+        correcta: 3
       },
       {
         pregunta: "Según las notas, ¿cuál es la raíz común de todas las cosas 'disfrazadas de honra'?",
-        opciones: ["La falta de recursos económicos", "El orgullo disfrazado que se resiste a renunciar al 'yo'", "La falta de tiempo para orar", "La timidez de los creyentes"],
-        correcta: 1
+        opciones: ["El orgullo disfrazado que se resiste a renunciar al 'yo'", "La falta de recursos económicos", "La falta de tiempo para orar", "La timidez de los creyentes"],
+        correcta: 0
       },
       {
         pregunta: "Según Mateo 16:24, ¿cuál es el requisito indispensable para ser un seguidor de Jesús?",
-        opciones: ["Ganar el mundo entero primero", "Negarse a sí mismo, tomar su cruz y seguirlo", "Tener una reputación intachable en la sociedad", "Cumplir con todas las tradiciones heredadas"],
-        correcta: 1
+        opciones: ["Ganar el mundo entero primero", "Tener una reputación intachable en la sociedad", "Negarse a sí mismo, tomar su cruz y seguirlo", "Cumplir con todas las tradiciones heredadas"],
+        correcta: 2
       },
       {
         pregunta: "Basado en 1 Juan 4:18, quien aún tiene miedo al castigo demuestra que:",
-        opciones: ["Es una persona muy prudente", "No ha experimentado plenamente el perfecto amor de Dios", "Tiene un temor santo y necesario", "Está a un paso de la perfección"],
-        correcta: 1
+        opciones: ["Es una persona muy prudente", "Tiene un temor santo y necesario", "No ha experimentado plenamente el perfecto amor de Dios", "Está a un paso de la perfección"],
+        correcta: 2
       },
       {
         pregunta: "¿Cuál es la diferencia fundamental entre los actos fingidos y los frutos del corazón?",
@@ -272,8 +272,8 @@
       },
       {
         pregunta: "¿Por qué el amor es descrito como el elemento que 'mata el orgullo'?",
-        opciones: ["Porque te hace sentir superior a los que no aman", "Porque te lleva a desear tanto a Dios que ya no quieres pecar", "Porque el amor es una emoción pasajera", "Porque elimina la necesidad de tener una relación"],
-        correcta: 1
+        opciones: ["Porque el amor es una emoción pasajera", "Porque te hace sentir superior a los que no aman", "Porque elimina la necesidad de tener una relación", "Porque te lleva a desear tanto a Dios que ya no quieres pecar"],
+        correcta: 3
       }
     ];
 
@@ -678,6 +678,65 @@
         console.error(err);
         setStatus('No se pudo avanzar (posible error de permisos en Firestore).');
       }
+    }
+
+    async function verDetalleEquipo(teamId) {
+      const modal = document.getElementById('modal-detalle');
+      const titulo = document.getElementById('modal-titulo');
+      const contenido = document.getElementById('modal-contenido');
+
+      titulo.innerText = `Respuestas del Equipo: ${teamId}`;
+      contenido.innerHTML = '<p class="text-gray-400">Cargando detalles...</p>';
+      modal.classList.remove('hidden');
+
+      try {
+        const answersRef = collection(db, `games/${GAME_ID}/teams/${teamId}/answers`);
+        const answersSnap = await getDocs(answersRef);
+        const answersMap = {};
+        answersSnap.forEach(doc => {
+          answersMap[doc.id] = doc.data();
+        });
+
+        contenido.innerHTML = '';
+        preguntas.forEach((q, idx) => {
+          const ans = answersMap[idx];
+          const div = document.createElement('div');
+          div.className = 'bg-[#0f0c05] border border-amber-500/10 p-3 rounded-lg text-sm';
+
+          let estadoHtml = '';
+          if (!ans) {
+            estadoHtml = '<span class="text-yellow-400 font-bold">[SIN RESPONDER]</span>';
+          } else if (ans.timeout) {
+            estadoHtml = '<span class="text-orange-400 font-bold">[TIEMPO AGOTADO]</span>';
+          } else if (ans.isCorrect) {
+            estadoHtml = '<span class="text-green-400 font-bold">[CORRECTO]</span>';
+          } else {
+            estadoHtml = '<span class="text-red-400 font-bold">[INCORRECTO]</span>';
+          }
+
+          const respuestaRecibida = ans ? (typeof ans.selectedIndex === 'number' ? q.opciones[ans.selectedIndex] : 'N/A') : 'N/A';
+          const respuestaCorrecta = q.opciones[q.correcta];
+
+          div.innerHTML = `
+            <p class="font-bold text-amber-200">${idx + 1}. ${q.pregunta}</p>
+            <div class="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <p><span class="text-gray-400">Respuesta dada:</span> <span class="${ans?.isCorrect ? 'text-green-300' : 'text-red-300'}">${respuestaRecibida}</span></p>
+              <p><span class="text-gray-400">Respuesta correcta:</span> <span class="text-green-300">${respuestaCorrecta}</span></p>
+            </div>
+            <p class="mt-1 text-[10px] uppercase">${estadoHtml}</p>
+          `;
+          contenido.appendChild(div);
+        });
+
+      } catch (err) {
+        console.error(err);
+        contenido.innerHTML = '<p class="text-red-400">Error cargando los detalles.</p>';
+      }
+    }
+    window.verDetalleEquipo = verDetalleEquipo;
+
+    window.cerrarModal = function () {
+      document.getElementById('modal-detalle').classList.add('hidden');
     }
 
     btnNextQuestion.addEventListener('click', avanzarPregunta);

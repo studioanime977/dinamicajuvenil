@@ -33,13 +33,13 @@ const db = getFirestore(app);
 const preguntas = [
   {
     pregunta: "Según Lucas 3:8, ¿qué prueba que una persona se ha arrepentido de verdad y ha vuelto a Dios?",
-    opciones: ["Decir 'estamos a salvo por Abraham'", "Demostrarlo con su forma de vivir", "Pertenecer a una familia con linaje espiritual", "Realizar sacrificios y ofrendas"],
+    opciones: ["Realizar sacrificios y ofrendas", "Demostrarlo con su forma de vivir", "Pertenecer a una familia con linaje espiritual", "Decir 'estamos a salvo por Abraham'"],
     correcta: 1
   },
   {
     pregunta: "¿A qué se refiere el concepto de que 'Dios no tiene nietos'?",
-    opciones: ["A que Dios solo ama a sus hijos biológicos", "A que la fe no se hereda; cada uno necesita un encuentro personal", "A que los ancianos no pueden conocer a Dios de verdad", "A que la descendencia de Abraham fue un error"],
-    correcta: 1
+    opciones: ["A que la fe no se hereda; cada uno necesita un encuentro personal", "A que Dios solo ama a sus hijos biológicos", "A que los ancianos no pueden conocer a Dios de verdad", "A que la descendencia de Abraham fue un error"],
+    correcta: 0
   },
   {
     pregunta: "En Lucas 10:41-42, ¿cuál fue la 'única cosa' necesaria que María descubrió y Marta ignoró?",
@@ -48,13 +48,13 @@ const preguntas = [
   },
   {
     pregunta: "¿Qué sucede cuando el servicio a Dios carece de una relación personal?",
-    opciones: ["Se vuelve más eficiente por la disciplina", "Se convierte en rutina y la rutina en vacío", "Se santifica por el esfuerzo realizado", "Te garantiza un lugar en el cielo"],
-    correcta: 1
+    opciones: ["Se santifica por el esfuerzo realizado", "Se vuelve más eficiente por la disciplina", "Te garantiza un lugar en el cielo", "Se convierte en rutina y la rutina en vacío"],
+    correcta: 3
   },
   {
     pregunta: "Según Efesios 2:8-9, ¿por qué razón ninguno de nosotros puede jactarse de ser salvo?",
-    opciones: ["Porque la salvación es un premio individual", "Porque la salvación es un regalo de Dios, no por méritos", "Porque el orgullo es un pecado menor", "Porque las obras buenas son opcionales"],
-    correcta: 1
+    opciones: ["Porque la salvación es un regalo de Dios, no por méritos", "Porque la salvación es un premio individual", "Porque el orgullo es un pecado menor", "Porque las obras buenas son opcionales"],
+    correcta: 0
   },
   {
     pregunta: "En Génesis 32, ¿cuál fue el propósito real del quebrantamiento de Jacob al luchar con el ángel?",
@@ -63,23 +63,23 @@ const preguntas = [
   },
   {
     pregunta: "El 'Heme aquí' de Samuel, a diferencia de los hijos de Elí, representaba:",
-    opciones: ["Que él era el más preparado teológicamente", "Una actitud de obediencia radical y honra desde el corazón", "Que no tenía otros compromisos en el templo", "Una respuesta automática por miedo al castigo"],
-    correcta: 1
+    opciones: ["Que él era el más preparado teológicamente", "Que no tenía otros compromisos en el templo", "Una respuesta automática por miedo al castigo", "Una actitud de obediencia radical y honra desde el corazón"],
+    correcta: 3
   },
   {
     pregunta: "Según las notas, ¿cuál es la raíz común de todas las cosas 'disfrazadas de honra'?",
-    opciones: ["La falta de recursos económicos", "El orgullo disfrazado que se resiste a renunciar al 'yo'", "La falta de tiempo para orar", "La timidez de los creyentes"],
-    correcta: 1
+    opciones: ["El orgullo disfrazado que se resiste a renunciar al 'yo'", "La falta de recursos económicos", "La falta de tiempo para orar", "La timidez de los creyentes"],
+    correcta: 0
   },
   {
     pregunta: "Según Mateo 16:24, ¿cuál es el requisito indispensable para ser un seguidor de Jesús?",
-    opciones: ["Ganar el mundo entero primero", "Negarse a sí mismo, tomar su cruz y seguirlo", "Tener una reputación intachable en la sociedad", "Cumplir con todas las tradiciones heredadas"],
-    correcta: 1
+    opciones: ["Ganar el mundo entero primero", "Tener una reputación intachable en la sociedad", "Negarse a sí mismo, tomar su cruz y seguirlo", "Cumplir con todas las tradiciones heredadas"],
+    correcta: 2
   },
   {
     pregunta: "Basado en 1 Juan 4:18, quien aún tiene miedo al castigo demuestra que:",
-    opciones: ["Es una persona muy prudente", "No ha experimentado plenamente el perfecto amor de Dios", "Tiene un temor santo y necesario", "Está a un paso de la perfección"],
-    correcta: 1
+    opciones: ["Es una persona muy prudente", "Tiene un temor santo y necesario", "No ha experimentado plenamente el perfecto amor de Dios", "Está a un paso de la perfección"],
+    correcta: 2
   },
   {
     pregunta: "¿Cuál es la diferencia fundamental entre los actos fingidos y los frutos del corazón?",
@@ -88,8 +88,8 @@ const preguntas = [
   },
   {
     pregunta: "¿Por qué el amor es descrito como el elemento que 'mata el orgullo'?",
-    opciones: ["Porque te hace sentir superior a los que no aman", "Porque te lleva a desear tanto a Dios que ya no quieres pecar", "Porque el amor es una emoción pasajera", "Porque elimina la necesidad de tener una relación"],
-    correcta: 1
+    opciones: ["Porque el amor es una emoción pasajera", "Porque te hace sentir superior a los que no aman", "Porque elimina la necesidad de tener una relación", "Porque te lleva a desear tanto a Dios que ya no quieres pecar"],
+    correcta: 3
   }
 ];
 
@@ -252,10 +252,11 @@ onSnapshot(gameRef, (docSnap) => {
         lastTimerQuestionIndex = questionIndex;
         lastTimerStartedAtMs = startedAtMs;
         timeoutPenalizedQuestionIndex = null;
-      }
 
-      displayQuestion(preguntas[questionIndex]);
-      answeredCurrentQuestion = false; // Resetear para la nueva pregunta
+        // Solo barajamos y mostramos cuando la pregunta cambia realmente
+        displayQuestion(preguntas[questionIndex]);
+        answeredCurrentQuestion = false; // Resetear para la nueva pregunta
+      }
     } else {
       currentQuestionIndex = -1;
       lastTimerQuestionIndex = null;
@@ -289,16 +290,32 @@ onSnapshot(gameRef, (docSnap) => {
   resetTimerState();
 });
 
-// 3. Mostrar la pregunta y las opciones
+// 2.5 Función de barajado (Shuffle)
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// 3. Mostrar la pregunta y las opciones barajadas
 function displayQuestion(q) {
   questionDisplay.innerText = q.pregunta;
   optionsContainer.innerHTML = '';
 
-  q.opciones.forEach((opcion, index) => {
+  // Creamos un array de objetos con el texto y el índice original
+  const opcionesConIndice = q.opciones.map((opt, idx) => ({ texto: opt, originalIndex: idx }));
+
+  // Barajamos las opciones
+  const opcionesBarajadas = shuffleArray([...opcionesConIndice]);
+
+  opcionesBarajadas.forEach((obj) => {
     const button = document.createElement('button');
-    button.innerText = opcion;
+    button.innerText = obj.texto;
     button.className = 'bg-[#0f0c05] text-gray-100 border border-amber-500/30 p-3 rounded-lg font-extrabold hover:bg-[#1a1409] hover:border-amber-400/60 focus:outline-none focus:ring-2 focus:ring-amber-400/60 transition-transform transform hover:scale-[1.02]';
-    button.onclick = () => handleAnswer(index, q.correcta);
+    // Enviamos el índice original para que la validación sea correcta
+    button.onclick = () => handleAnswer(obj.originalIndex, q.correcta);
     optionsContainer.appendChild(button);
   });
 }
