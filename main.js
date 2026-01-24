@@ -31,107 +31,94 @@ const db = getFirestore(app);
 // ❓ PREGUNTAS DEL JUEGO (TEMA: LA HONRA)
 // -----------------------------------------------------------------------------------------------
 const preguntas = [
+  // --- BLOQUE 1: REPASO 17 DE ENERO (Tradición vs Fe) ---
   {
-    pregunta: "Según Lucas 3:8, ¿qué prueba que una persona se ha arrepentido de verdad y ha vuelto a Dios?",
-    opciones: ["Realizar sacrificios y ofrendas", "Demostrarlo con su forma de vivir", "Pertenecer a una familia con linaje espiritual", "Decir 'estamos a salvo por Abraham'"],
+    pregunta: "📢 SECCIÓN 1: Repaso del Sábado 17 de Enero. ¿Según Lucas 3:8, qué prueba un arrepentimiento real?",
+    opciones: ["Sacrificios religiosos", "Frutos en la forma de vivir", "Linaje espiritual", "Palabras bonitas"],
     correcta: 1,
-    explicacion: "El arrepentimiento real produce frutos; es un cambio de dirección que se nota en la conducta, no solo en palabras o herencia espiritual."
+    explicacion: "El arrepentimiento real produce frutos; es un cambio de dirección que se nota en la conducta."
   },
   {
-    pregunta: "¿A qué se refiere el concepto de que 'Dios no tiene nietos'?",
-    opciones: ["A que la fe no se hereda; cada uno necesita un encuentro personal", "A que Dios solo ama a sus hijos biológicos", "A que los ancianos no pueden conocer a Dios de verdad", "A que la descendencia de Abraham fue un error"],
-    correcta: 0,
-    explicacion: "Nadie nace siendo cristiano por sus padres; la salvación es una relación individual y una decisión personal de cada ser humano."
+    pregunta: "En la sesión pasada aprendimos que 'Dios no tiene nietos'. ¿Qué significa esto?",
+    opciones: ["Que Dios solo ama a los hijos", "Que la fe no se hereda; cada uno necesita un encuentro personal", "Que los abuelos no cuentan", "Que la fe es biológica"],
+    correcta: 1,
+    explicacion: "Nadie nace siendo cristiano por sus padres; la salvación es una decisión personal."
   },
   {
     pregunta: "En Lucas 10:41-42, ¿cuál fue la 'única cosa' necesaria que María descubrió y Marta ignoró?",
-    opciones: ["Servir con excelencia a los invitados", "La preocupación por los detalles del altar", "Estar en Su presencia y escuchar Su palabra", "Ayudar a los pobres de la aldea"],
-    correcta: 2,
-    explicacion: "El servicio es bueno, pero estar a los pies de Jesús escuchando Su voz es la prioridad que sustenta todo lo demás."
-  },
-  {
-    pregunta: "¿Qué sucede cuando el servicio a Dios carece de una relación personal?",
-    opciones: ["Se santifica por el esfuerzo realizado", "Se vuelve más eficiente por la disciplina", "Te garantiza un lugar en el cielo", "Se convierte en rutina y la rutina en vacío"],
-    correcta: 3,
-    explicacion: "Las actividades religiosas sin amor e intimidad con Dios se vuelven mecánicas, aburridas y eventualmente nos dejan vacíos."
+    opciones: ["Servir con excelencia", "Estar en Su presencia y escuchar Su palabra", "Ayudar a los pobres", "Limpiar el altar"],
+    correcta: 1,
+    explicacion: "Estar a los pies de Jesús escuchando Su voz es la prioridad que sustenta todo lo demás."
   },
   {
     pregunta: "Según Efesios 2:8-9, ¿por qué razón ninguno de nosotros puede jactarse de ser salvo?",
-    opciones: ["Porque la salvación es un regalo de Dios, no por méritos", "Porque la salvación es un premio individual", "Porque el orgullo es un pecado menor", "Porque las obras buenas son opcionales"],
+    opciones: ["Porque es un regalo (Gracia), no por méritos", "Porque es un premio individual", "Porque el orgullo es pecado", "Porque las obras son opcionales"],
     correcta: 0,
-    explicacion: "La salvación es por GRACIA (regalo inmerecido). No la ganamos por portarnos bien, para que el orgullo no tenga lugar."
-  },
-  {
-    pregunta: "En Génesis 32, ¿cuál fue el propósito real del quebrantamiento de Jacob al luchar con el ángel?",
-    opciones: ["Castigarlo por engañar a su hermano Esaú", "Transformar su identidad de 'suplantador' a Israel", "Demostrar que el ángel era más fuerte que él", "Quitarle sus riquezas acumuladas"],
-    correcta: 1,
-    explicacion: "Jacob necesitaba dejar de confiar en sus fuerzas y sus mañas ('suplantador') para rendirse a Dios y recibir una nueva identidad ('Israel')."
-  },
-  {
-    pregunta: "El 'Heme aquí' de Samuel, a diferencia de los hijos de Elí, representaba:",
-    opciones: ["Que él era el más preparado teológicamente", "Que no tenía otros compromisos en el templo", "Una respuesta automática por miedo al castigo", "Una actitud de obediencia radical y honra desde el corazón"],
-    correcta: 3,
-    explicacion: "La honra no es un cargo; es una disposición del corazón que dice 'estoy dispuesto a escucharte y hacer lo que digas'."
-  },
-  {
-    pregunta: "Según las notas, ¿cuál es la raíz común de todas las cosas 'disfrazadas de honra'?",
-    opciones: ["El orgullo disfrazado que se resiste a renunciar al 'yo'", "La falta de recursos económicos", "La falta de tiempo para orar", "La timidez de los creyentes"],
-    correcta: 0,
-    explicacion: "A veces servimos o damos para ser vistos o sentirnos bien, sin realmente rendir nuestro orgullo al señorío de Cristo."
-  },
-  {
-    pregunta: "Según Mateo 16:24, ¿cuál es el requisito indispensable para ser un seguidor de Jesús?",
-    opciones: ["Ganar el mundo entero primero", "Tener una reputación intachable en la sociedad", "Negarse a sí mismo, tomar su cruz y seguirlo", "Cumplir con todas las tradiciones heredadas"],
-    correcta: 2,
-    explicacion: "Seguir a Jesús requiere morir a nuestros propios deseos ('tomar la cruz') para que Su voluntad sea lo primero en nuestra vida."
-  },
-  {
-    pregunta: "Basado en 1 Juan 4:18, quien aún tiene miedo al castigo demuestra que:",
-    opciones: ["Es una persona muy prudente", "Tiene un temor santo y necesario", "No ha experimentado plenamente el perfecto amor de Dios", "Está a un paso de la perfección"],
-    correcta: 2,
-    explicacion: "El amor de Dios es perfecto y nos da seguridad. Si servimos por miedo al castigo, aún no hemos entendido cuán profundamente nos ama."
-  },
-  {
-    pregunta: "¿Cuál es la diferencia fundamental entre los actos fingidos y los frutos del corazón?",
-    opciones: ["Los actos son siempre más visibles", "Los actos pueden fingirse, pero los frutos revelan el corazón real", "Los frutos solo aparecen en personas perfectas", "No hay diferencia si la intención es buena"],
-    correcta: 1,
-    explicacion: "Cualquiera puede actuar bien por un rato, pero el fruto (amor, gozo, paz) es lo que sale naturalmente cuando Dios vive en nosotros."
-  },
-  {
-    pregunta: "¿Por qué el amor es descrito como el elemento que 'mata el orgullo'?",
-    opciones: ["Porque el amor es una emoción pasajera", "Porque te hace sentir superior a los que no aman", "Porque elimina la necesidad de tener una relación", "Porque te lleva a desear tanto a Dios que ya no quieres pecar"],
-    correcta: 3,
-    explicacion: "Cuando amamos a Dios sobre todas las cosas, nuestro deseo de agradarle supera nuestro deseo de satisfacernos a nosotros mismos o al pecado."
-  },
-  {
-    pregunta: "Según el texto, ¿por qué ya no necesitamos de intermediarios humanos para llegar al Padre?",
-    opciones: ["Porque Jesús nos dio acceso directo al trono de la gracia", "Porque ahora somos descendientes biológicos de Abraham", "Porque las piedras pueden convertirse en hijos", "Porque el servicio en el altar nos santifica"],
-    correcta: 0,
-    explicacion: "La muerte de Jesús rompió el velo. Depender de intermediarios humanos puede volver nuestra fe una tradición lejana en lugar de una relación viva."
-  },
-  {
-    pregunta: "¿Cuál es el punto de partida para que Dios transforme nuestra vida según la experiencia de 'rendirse'?",
-    opciones: ["Hacer mil cosas para llamar Su atención", "Reconocer que sin Él no somos nada y decir 'Heme aquí'", "Prepararse teológicamente como los hijos de Elí", "Forzar un encuentro espiritual a través del esfuerzo"],
-    correcta: 1,
-    explicacion: "No se trata de cuánto hagamos (Marta), sino de reconocer nuestra total dependencia y estar dispuestos a escuchar con humildad (Samuel)."
-  },
-  {
-    pregunta: "¿Por qué Jacob, siendo nieto de Abraham, necesitó ser quebrantado por Dios en Peniel?",
-    opciones: ["Para ganar la pelea contra el ángel", "Para que su fe dejara de ser heredada y tuviera un encuentro personal", "Para poder heredar las riquezas de su abuelo", "Porque Dios quería castigarlo por sus pecados pasados"],
-    correcta: 1,
-    explicacion: "Ser 'nieto' (heredar la fe) no basta. Jacob necesitaba su propio encuentro para que su identidad fuera transformada de suplantador a príncipe."
-  },
-  {
-    pregunta: "Según 1 Juan 4:18, ¿qué revela el hecho de que alguien sirva a Dios por miedo al castigo?",
-    opciones: ["Que es una persona muy obediente", "Que ha alcanzado el amor perfecto", "Que no ha experimentado plenamente el perfecto amor de Dios", "Que tiene una fe más sólida que los demás"],
-    correcta: 2,
-    explicacion: "El servicio por miedo es esclavitud. El amor perfecto expulsa el temor, llevándonos a servir por gratitud y no por terror a las consecuencias."
+    explicacion: "La salvación es por GRACIA. No la ganamos por portarnos bien, para que el orgullo no tenga lugar."
   },
   {
     pregunta: "¿Qué significa realmente 'soltar el último ídolo' para alcanzar una vida de honra?",
-    opciones: ["Abandonar nuestra propia manera de vivir y lo que nos estanca", "Dejar de ir a la iglesia por un tiempo para pensar", "Tratar de ganar el mundo entero con méritos propios", "Aferrarnos a la vida para no perder la salvación"],
+    opciones: ["Dejar de ir a la iglesia", "Abandonar nuestra propia manera de vivir y lo que nos estanca", "Ahorrar dinero", "Hacerse famoso"],
+    correcta: 1,
+    explicacion: "La honra requiere negarse a sí mismo y soltar aquello que impide nuestra entrega total a Cristo."
+  },
+
+  // --- TRANSICIÓN ---
+  {
+    pregunta: "🔄 TRANSICIÓN: Hemos terminado el repaso del 17 de Enero. ¿Estamos listos para la dinámica de HOY 24 de Enero?",
+    opciones: ["¡Estamos listos!", "¡Vamos con todo!", "¡A darle!", "Todas las anteriores"],
+    correcta: 3,
+    explicacion: "¡Excelente! Vamos a entrar en el tema de hoy: Honrar a Dios con lo primero."
+  },
+
+  // --- BLOQUE 2: DINÁMICA DE HOY 24 DE ENERO (Honrar a Dios) ---
+  {
+    pregunta: "📢 SECCIÓN 2: Dinámica de Hoy. ¿Cuál es la porción bíblica clave de hoy?",
+    opciones: ["Juan 3:16", "Proverbios 3:9-10", "Salmo 23", "Mateo 6:33"],
+    correcta: 1,
+    explicacion: "Nuestra base hoy es Proverbios 3:9-10, que nos habla de honrar a Dios con nuestros bienes."
+  },
+  {
+    pregunta: "Según Proverbios 3:9, ¿con qué debemos honrar a Jehová?",
+    opciones: ["Con lo que sobra", "Con nuestros bienes y las primicias", "Solo con alabanzas", "Con promesas"],
+    correcta: 1,
+    explicacion: "La Biblia dice: honra a Jehová con tus bienes y con las primicias de tus frutos."
+  },
+  {
+    pregunta: "¿Qué promesa da Dios en Proverbios 3:10 a quienes le honran con sus primicias?",
+    opciones: ["Fama mundial", "Graneros llenos con abundancia", "Sin problemas en la vida", "Poder político"],
+    correcta: 1,
+    explicacion: "Dios promete que serán llenos tus graneros con abundancia."
+  },
+  {
+    pregunta: "¿Qué son las primicias en el contexto del corazón?",
+    opciones: ["Lo último del día", "Lo primero del corazón para Dios", "Dinero extra", "Regalos para amigos"],
+    correcta: 1,
+    explicacion: "Las primicias no son sobras; es entregarle a Dios lo primero de nuestro corazón y tiempo."
+  },
+  {
+    pregunta: "¿Por qué se dice que a veces tratamos a Dios como un 'contacto de emergencia'?",
+    opciones: ["Porque responde rápido", "Porque solo lo buscamos cuando algo va mal", "Porque es emergente", "Porque no lo conocemos"],
+    correcta: 1,
+    explicacion: "Dios no quiere ser emergencia; Dios quiere ser prioridad."
+  },
+  {
+    pregunta: "Un joven honra a Dios con su tiempo cuando decide buscarlo antes que:",
+    opciones: ["Comer", "El celular", "Dormir", "Hacer ejercicio"],
+    correcta: 1,
+    explicacion: "Honrar a Dios con el tiempo es decidir buscarlo antes que el celular."
+  },
+  {
+    pregunta: "Un joven honra a Dios con sus decisiones cuando:",
+    opciones: ["Obedece a Dios aunque nadie lo vea", "Sigue a la mayoría", "Hace lo que siente", "Espera que le digan qué hacer"],
     correcta: 0,
-    explicacion: "La honra requiere negarse a sí mismo (Mateo 16:24) y soltar aquello que, aunque nos guste, sabemos que impide nuestra entrega total a Cristo."
+    explicacion: "La obediencia en lo secreto es una de las mayores formas de honra."
+  },
+  {
+    pregunta: "¿Cuál es la conclusión final sobre honrar a Dios?",
+    opciones: ["Darle un espacio", "Darle el primer lugar", "Darle lo que sobra", "Ir a la iglesia"],
+    correcta: 1,
+    explicacion: "Honrar a Dios no es darle un espacio, es darle el primer lugar."
   }
 ];
 

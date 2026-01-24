@@ -1,40 +1,32 @@
-### V3 - Theme "Cuando la fe se vuelve tradición" & Auto-Automation
+### V4 - Theme "Honrar a Dios" (Proverbios 3:9-10)
 
 *   **Core Technology:** HTML, TailwindCSS, Firebase Firestore.
-*   **Design (Royal Amber Theme):**
-    *   Solemn and premium look with Deep Midnight background and Gold/Amber accents.
-    *   Glassmorphism effects on all cards.
+*   **Design (Cyber-Tech Theme):**
+    *   Cyberpunk aesthetics with Neon Cyan and Magenta accents.
+    *   Glassmorphism and deep shadows for a premium feel.
 *   **New Features:**
-    *   **Automated Game Flow:** The Admin panel includes a "Modo Avance Automático" that detects when all registered teams have answered and advances to the next question after a 3-second delay.
-    *   **Tricky Question Set:** 12 complex questions based on the theme "Cuando la fe se vuelve tradición", including scriptures like Lucas 3:8, Lucas 10, Mateo 16, and Genesis 32.
-    *   **Updated Scoring:** Correct Answer: **+15 points** | Incorrect: **-10 points** | No Response: **-5 points** | Anti-Cheat: **-3 points**.
+    *   **Unified Saturdays Content:** Combined content from Jan 17 and Jan 24.
+    *   **Thematic Focus:** Honoring God with priority, time, and decisions.
+    *   **Question Set:** 10 targeted questions based on Proverbs 3:9-10 and youth application.
 *   **Game Flow:**
-    *   **Waiting State:** After answering, players see a message: "Esperando a los demás grupos...".
-    *   **Real-time Admin Monitoring:** Admin sees live answers and can toggle between manual and automatic progression.
+    *   **Manual/Auto Progression:** Admin can advance questions or wait for all teams to sync.
+    *   **Real-time Scoring:** Points for speed and correctness; penalties for anti-cheat and timeouts.
 
-## Current State (V3)
-The project is fully updated for the theme "Cuando la fe se vuelve tradición" with automated flow.
-
-### Components & File Locations
-(Same as V2, but with updated content in `main.js` and `admin.html`)
+## Current State (V4)
+The project is updated for the theme "Honrar a Dios" with a new question set focusing on Biblical priorities for youth.
 
 ### Components & File Locations
 
 *   **Player Interface:**
-    *   [index.html](file:///c:/Users/Admin/Desktop/dinamica/dinamicajuvenil/index.html): Entry point for teams.
-    *   [main.js](file:///c:/Users/Admin/Desktop/dinamica/dinamicajuvenil/main.js): Player-side logic, real-time sync, and the question database (themed: "La Honra y la Deshonra").
+    *   [index.html](file:///c:/Users/Admin/Desktop/dinamica/dinamicajuvenil/index.html): Entry point for teams. (Theme title updated).
+    *   [main.js](file:///c:/Users/Admin/Desktop/dinamica/dinamicajuvenil/main.js): Player-side logic and question database (V4 set).
 *   **Leader Control:**
     *   [leader.html](file:///c:/Users/Admin/Desktop/dinamica/dinamicajuvenil/leader.html): Simple control panel for the game host.
     *   [leader.js](file:///c:/Users/Admin/Desktop/dinamica/dinamicajuvenil/leader.js): Logic for advancing questions and resetting the game.
 *   **Advanced Admin Panel:**
-    *   [admin.html](file:///c:/Users/Admin/Desktop/dinamica/dinamicajuvenil/admin.html): Password-protected dashboard for managing teams, viewing live answers, and generating final reports. Contains a duplicate of the question set.
-*   **Styling & Config:**
-    *   [style.css](file:///c:/Users/Admin/Desktop/dinamica/dinamicajuvenil/style.css): Global custom styles (minimal).
-    *   [GEMINI.md](file:///c:/Users/Admin/Desktop/dinamica/dinamicajuvenil/GEMINI.md): AI interaction guidelines.
+    *   [admin.html](file:///c:/Users/Admin/Desktop/dinamica/dinamicajuvenil/admin.html): Central dashboard with duplicate question set for reporting.
 
 ### Database Schema (Firestore)
-
-*   `games/main-game`: Syncs the current question index and game status.
-*   `games/main-game/teams/`: Collection of registered teams and their scores.
-*   `games/main-game/teams/{team}/answers/`: Individual responses per question.
-*   `config/admin`: Stores the administrative access key.
+*   `games/main-game`: Syncs current index and status.
+*   `games/main-game/teams/`: Collection of registered teams and scores.
+*   `config/admin`: Stores access key.

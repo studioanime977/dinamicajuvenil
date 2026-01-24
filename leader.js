@@ -13,12 +13,12 @@ import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, onSnapshot, s
 // ⚙️ CONFIGURACIÓN DE FIREBASE
 // -----------------------------------------------------------------------------------------------
 const firebaseConfig = {
-    apiKey: "AIzaSyC8xL6OM_ff7LqFJj_P87d9wVR-BT8OJsE",
-    authDomain: "dinamica-en-tiempo-real.firebaseapp.com",
-    projectId: "dinamica-en-tiempo-real",
-    storageBucket: "dinamica-en-tiempo-real.firebasestorage.app",
-    messagingSenderId: "1096669474654",
-    appId: "1:1096669474654:web:0348238823f2a0cbdea9cf"
+  apiKey: "AIzaSyC8xL6OM_ff7LqFJj_P87d9wVR-BT8OJsE",
+  authDomain: "dinamica-en-tiempo-real.firebaseapp.com",
+  projectId: "dinamica-en-tiempo-real",
+  storageBucket: "dinamica-en-tiempo-real.firebasestorage.app",
+  messagingSenderId: "1096669474654",
+  appId: "1:1096669474654:web:0348238823f2a0cbdea9cf"
 };
 
 // -----------------------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ const questionStatusDisplay = document.getElementById('current-question-status')
 const teamCountDisplay = document.getElementById('team-count');
 
 const GAME_ID = "main-game";
-const TOTAL_QUESTIONS = 24;
+const TOTAL_QUESTIONS = 14;
 
 // -----------------------------------------------------------------------------------------------
 // 🕹️ LÓGICA DEL PANEL DE LÍDER
@@ -57,7 +57,7 @@ nextQuestionButton.addEventListener('click', async () => {
   let nextIndex = 0;
   if (gameDoc.exists() && typeof gameDoc.data().currentQuestionIndex !== 'undefined') {
     nextIndex = gameDoc.data().currentQuestionIndex + 1;
-  } 
+  }
 
   if (nextIndex >= TOTAL_QUESTIONS) {
     try {
@@ -85,7 +85,7 @@ resetGameButton.addEventListener('click', async () => {
   if (!confirm("¿Estás seguro de que quieres reiniciar el juego? Esto borrará el progreso de la pregunta actual, pero no los puntos de los equipos.")) {
     return;
   }
-  
+
   const gameRef = doc(db, `games/${GAME_ID}`);
   // Esto regresa el juego al estado inicial donde los jugadores esperan al líder.
   try {
@@ -99,30 +99,30 @@ resetGameButton.addEventListener('click', async () => {
 
 // 3. Escuchar el estado del juego para feedback del líder
 onSnapshot(doc(db, `games/${GAME_ID}`), (docSnap) => {
-    if (docSnap.exists()) {
-        const gameData = docSnap.data();
-        const index = gameData.currentQuestionIndex;
-        if (typeof index === 'undefined' || index < 0) {
-            questionStatusDisplay.textContent = "Juego no iniciado. Pulsa 'Siguiente Pregunta' para empezar.";
-        } else {
-            questionStatusDisplay.textContent = `Pregunta #${index + 1}`;
-        }
-    }
-}, (err) => {
-    console.error(err);
-    if (err?.code === 'permission-denied') {
-        questionStatusDisplay.textContent = 'Firestore bloqueado por permisos. Ajusta las reglas para leer/escribir el juego.';
+  if (docSnap.exists()) {
+    const gameData = docSnap.data();
+    const index = gameData.currentQuestionIndex;
+    if (typeof index === 'undefined' || index < 0) {
+      questionStatusDisplay.textContent = "Juego no iniciado. Pulsa 'Siguiente Pregunta' para empezar.";
     } else {
-        questionStatusDisplay.textContent = 'Error escuchando el estado del juego.';
+      questionStatusDisplay.textContent = `Pregunta #${index + 1}`;
     }
+  }
+}, (err) => {
+  console.error(err);
+  if (err?.code === 'permission-denied') {
+    questionStatusDisplay.textContent = 'Firestore bloqueado por permisos. Ajusta las reglas para leer/escribir el juego.';
+  } else {
+    questionStatusDisplay.textContent = 'Error escuchando el estado del juego.';
+  }
 });
 
 // 4. Escuchar la cantidad de equipos conectados
 onSnapshot(collection(db, `games/${GAME_ID}/teams`), (snapshot) => {
-    teamCountDisplay.textContent = snapshot.size;
+  teamCountDisplay.textContent = snapshot.size;
 }, (err) => {
-    console.error(err);
-    if (err?.code === 'permission-denied') {
-        teamCountDisplay.textContent = '—';
-    }
+  console.error(err);
+  if (err?.code === 'permission-denied') {
+    teamCountDisplay.textContent = '—';
+  }
 });
